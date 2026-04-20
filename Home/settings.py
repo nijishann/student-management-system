@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-071%b6(84a!7f5jucuy8fi=4k7r4+c+#ply$%$&oiwl6#_x0#n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://simsproject.up.railway.app']
 
 
 # Application definition
@@ -122,3 +122,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'              # লগইন পেজের নাম
 LOGIN_REDIRECT_URL = 'index' # লগইন হওয়ার পর যেখানে যাবে (index.html এর রাউট নাম)
 LOGOUT_REDIRECT_URL = 'login'    # লগআউট করলে যেখানে যাবে
+
+
+# রেলওয়ে ডোমেইনকে ট্রাস্টেড হিসেবে যুক্ত করা
+#CSRF_TRUSTED_ORIGINS = [
+#   'https://simsproject.up.railway.app',
+#]
