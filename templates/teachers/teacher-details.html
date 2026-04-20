@@ -1,0 +1,72 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+<div class="content container-fluid">
+   <div class="page-header">
+      <div class="row align-items-center">
+         <div class="col">
+            <h3 class="page-title">Teacher Details</h3>
+            <ul class="breadcrumb">
+               <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+               <li class="breadcrumb-item"><a href="{% url 'teacher_list' %}">Teachers</a></li>
+               <li class="breadcrumb-item active">{{ teacher.first_name }} {{ teacher.last_name }}</li>
+            </ul>
+         </div>
+         <div class="col-auto text-right float-right ml-auto">
+            <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary">
+               <i class="fas fa-arrow-left mr-1"></i> Back
+            </a>
+         </div>
+      </div>
+   </div>
+
+   <div class="card">
+      <div class="card-body">
+         <div class="media mt-3">
+            {% if teacher.teacher_image %}
+            <img src="{{ teacher.teacher_image.url }}" class="mr-3 rounded-circle" width="80" height="80" alt="{{ teacher.first_name }}">
+            {% else %}
+            <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" class="mr-3 rounded-circle" width="80" height="80" alt="No Image">
+            {% endif %}
+            <div class="media-body">
+               <h4>{{ teacher.first_name }} {{ teacher.last_name }}</h4>
+               <p class="text-muted">{{ teacher.department.name|default:"No Department" }}</p>
+            </div>
+         </div>
+
+         <div class="row mt-4">
+            <div class="col-md-6">
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Teacher ID:</strong></td><td>{{ teacher.teacher_id }}</td></tr>
+                  <tr><td><strong>Gender:</strong></td><td>{{ teacher.gender }}</td></tr>
+                  <tr><td><strong>Date of Birth:</strong></td><td>{{ teacher.date_of_birth|date:"d M Y" }}</td></tr>
+                  <tr><td><strong>Qualification:</strong></td><td>{{ teacher.qualification|default:"N/A" }}</td></tr>
+               </table>
+            </div>
+            <div class="col-md-6">
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Mobile:</strong></td><td>{{ teacher.mobile_number }}</td></tr>
+                  <tr><td><strong>Email:</strong></td><td>{{ teacher.email|default:"N/A" }}</td></tr>
+                  <tr><td><strong>Department:</strong></td><td>{{ teacher.department.name|default:"N/A" }}</td></tr>
+                  <tr><td><strong>Subject:</strong></td><td>{{ teacher.subject.name|default:"N/A" }}</td></tr>
+                  <tr><td><strong>Joining Date:</strong></td><td>{{ teacher.joining_date|date:"d M Y" }}</td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<footer><p>Copyright &copy; 2026 OurUniversity</p></footer>
+</div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+<div class="content container-fluid">
+
+   <div class="page-header">
+      <div class="row align-items-center">
+         <div class="col">
+            <h3 class="page-title">Student Details</h3>
+            <ul class="breadcrumb">
+               <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+               <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+               <li class="breadcrumb-item active">{{ student.first_name }} {{ student.last_name }}</li>
+            </ul>
+         </div>
+         <div class="col-auto text-right float-right ml-auto">
+            <a href="{% url 'edit_student' student.slug %}" class="btn btn-primary mr-2">
+               <i class="fas fa-pen mr-1"></i> Edit Student
+            </a>
+            <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+               <i class="fas fa-arrow-left mr-1"></i> Back
+            </a>
+         </div>
+      </div>
+   </div>
+
+   <!-- Profile Card -->
+   <div class="card">
+      <div class="card-body">
+         <div class="row">
+            <div class="col-md-12">
+               <div class="about-info">
+                  <h4>Student Profile</h4>
+                  <div class="media mt-3">
+                     {% if student.student_image %}
+                     <img src="{{ student.student_image.url }}" class="mr-3 rounded-circle" width="80" height="80" alt="{{ student.first_name }}">
+                     {% else %}
+                     <img src="{% static 'assets/img/profiles/avatar-09.jpg' %}" class="mr-3 rounded-circle" width="80" height="80" alt="No Image">
+                     {% endif %}
+                     <div class="media-body">
+                        <ul>
+                           <li><span class="title-span">Full Name :</span> <span class="info-span">{{ student.first_name }} {{ student.last_name }}</span></li>
+                           <li><span class="title-span">Student ID :</span> <span class="info-span">{{ student.student_id }}</span></li>
+                           <li><span class="title-span">Admission No :</span> <span class="info-span">{{ student.admission_number }}</span></li>
+                           <li><span class="title-span">Class :</span> <span class="info-span">{{ student.student_class }}</span></li>
+                           <li><span class="title-span">Section :</span> <span class="info-span">{{ student.section }}</span></li>
+                           <li><span class="title-span">Gender :</span> <span class="info-span">{{ student.gender }}</span></li>
+                           <li><span class="title-span">Date of Birth :</span> <span class="info-span">{{ student.date_of_birth|date:"d M Y" }}</span></li>
+                           <li><span class="title-span">Religion :</span> <span class="info-span">{{ student.religion }}</span></li>
+                           <li><span class="title-span">Mobile :</span> <span class="info-span">{{ student.mobile_number }}</span></li>
+                           <li><span class="title-span">Joining Date :</span> <span class="info-span">{{ student.joining_date|date:"d M Y" }}</span></li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- Address -->
+         <div class="row mt-3">
+            <div class="col-md-6">
+               <h5>Present Address</h5>
+               <p>{{ student.parent.present_address }}</p>
+            </div>
+            <div class="col-md-6">
+               <h5>Permanent Address</h5>
+               <p>{{ student.parent.permanent_address }}</p>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Parent Info -->
+   <div class="card mt-3">
+      <div class="card-header">
+         <h5 class="card-title mb-0">Parent / Guardian Information</h5>
+      </div>
+      <div class="card-body">
+         <div class="row">
+            <div class="col-md-6">
+               <h6 class="text-primary"><i class="fas fa-male mr-1"></i> Father's Details</h6>
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Name:</strong></td><td>{{ student.parent.father_name }}</td></tr>
+                  <tr><td><strong>Occupation:</strong></td><td>{{ student.parent.father_occupation|default:"N/A" }}</td></tr>
+                  <tr><td><strong>Mobile:</strong></td><td>{{ student.parent.father_mobile }}</td></tr>
+                  <tr><td><strong>Email:</strong></td><td>{{ student.parent.father_email }}</td></tr>
+               </table>
+            </div>
+            <div class="col-md-6">
+               <h6 class="text-danger"><i class="fas fa-female mr-1"></i> Mother's Details</h6>
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Name:</strong></td><td>{{ student.parent.mother_name }}</td></tr>
+                  <tr><td><strong>Occupation:</strong></td><td>{{ student.parent.mother_occupation|default:"N/A" }}</td></tr>
+                  <tr><td><strong>Mobile:</strong></td><td>{{ student.parent.mother_mobile }}</td></tr>
+                  <tr><td><strong>Email:</strong></td><td>{{ student.parent.mother_email }}</td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+
+</div>
+<footer>
+   <p>Copyright &copy; 2026 OurUniversity</p>
+</footer>
+</div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>
+{% endblock %}

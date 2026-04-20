@@ -1,0 +1,214 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+   <div class="content container-fluid">
+      <div class="page-header">
+         <div class="row align-items-center">
+            <div class="col">
+               <h3 class="page-title">Add Student</h3>
+               <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+                  <li class="breadcrumb-item active">Add Student</li>
+               </ul>
+            </div>
+         </div>
+      </div>
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+         {{ message }}
+         <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="card">
+               <div class="card-body">
+                  <form method="POST" enctype="multipart/form-data">
+                     {% csrf_token %}
+
+                     <!-- Student Information -->
+                     <div class="row">
+                        <div class="col-12">
+                           <h5 class="form-title"><span>Student Information</span></h5>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>First Name <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="first_name" placeholder="Enter first name" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Last Name <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="last_name" placeholder="Enter last name" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Student ID <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="student_id" placeholder="e.g. STD2024001" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Admission Number</label>
+                              <input type="text" class="form-control" name="admission_number" placeholder="e.g. ADM2024001">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Gender <span class="text-danger">*</span></label>
+                              <select class="form-control" name="gender" required>
+                                 <option value="">Select Gender</option>
+                                 <option value="Male">Male</option>
+                                 <option value="Female">Female</option>
+                                 <option value="Others">Others</option>
+                              </select>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Date of Birth <span class="text-danger">*</span></label>
+                              <input type="date" class="form-control" name="date_of_birth" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Class <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="student_class" placeholder="e.g. Class 10" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Section</label>
+                              <input type="text" class="form-control" name="section" placeholder="e.g. A, B, C">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Religion</label>
+                              <input type="text" class="form-control" name="religion" placeholder="e.g. Islam, Hindu">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Mobile Number</label>
+                              <input type="text" class="form-control" name="mobile_number" placeholder="e.g. 01700000000">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Joining Date</label>
+                              <input type="date" class="form-control" name="joining_date">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Student Photo</label>
+                              <input type="file" class="form-control" name="student_image" accept="image/*">
+                           </div>
+                        </div>
+                     </div>
+
+                     <!-- Parent Information -->
+                     <div class="row">
+                        <div class="col-12">
+                           <h5 class="form-title"><span>Parent / Guardian Information</span></h5>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Father's Name <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="father_name" placeholder="Father's full name" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Father's Occupation</label>
+                              <input type="text" class="form-control" name="father_occupation" placeholder="e.g. Businessman">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Father's Mobile</label>
+                              <input type="text" class="form-control" name="father_mobile" placeholder="Father's mobile number">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Father's Email</label>
+                              <input type="email" class="form-control" name="father_email" placeholder="Father's email">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Mother's Name <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" name="mother_name" placeholder="Mother's full name" required>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Mother's Occupation</label>
+                              <input type="text" class="form-control" name="mother_occupation" placeholder="e.g. Housewife">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Mother's Mobile</label>
+                              <input type="text" class="form-control" name="mother_mobile" placeholder="Mother's mobile number">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Mother's Email</label>
+                              <input type="email" class="form-control" name="mother_email" placeholder="Mother's email">
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Present Address</label>
+                              <textarea class="form-control" name="present_address" rows="3" placeholder="Current address"></textarea>
+                           </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                           <div class="form-group">
+                              <label>Permanent Address</label>
+                              <textarea class="form-control" name="permanent_address" rows="3" placeholder="Permanent address"></textarea>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="row">
+                        <div class="col-12">
+                           <button type="submit" class="btn btn-primary mr-2">
+                              <i class="fas fa-user-plus mr-1"></i> Add Student
+                           </button>
+                           <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer>
+      <p>Copyright &copy; 2026 OurUniversity</p>
+   </footer>
+</div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>
+{% endblock %}

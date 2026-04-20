@@ -1,0 +1,80 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+   <div class="content container-fluid">
+      <div class="page-header">
+         <div class="row align-items-center">
+            <div class="col">
+               <h3 class="page-title">Departments</h3>
+               <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+                  <li class="breadcrumb-item active">Departments</li>
+               </ul>
+            </div>
+            <div class="col-auto text-right float-right ml-auto">
+               <a href="{% url 'add_department' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Department</a>
+            </div>
+         </div>
+      </div>
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+         {{ message }}
+         <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="card card-table">
+               <div class="card-body">
+                  <div class="table-responsive">
+                     <table class="table table-hover table-center mb-0 datatable">
+                        <thead>
+                           <tr>
+                              <th>#</th>
+                              <th>Department Name</th>
+                              <th>Description</th>
+                              <th>Created</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for dept in department_list %}
+                           <tr>
+                              <td>{{ forloop.counter }}</td>
+                              <td><strong>{{ dept.name }}</strong></td>
+                              <td>{{ dept.description|default:"N/A" }}</td>
+                              <td>{{ dept.created_at|date:"d M Y" }}</td>
+                           </tr>
+                           {% empty %}
+                           <tr>
+                              <td colspan="4" class="text-center text-muted py-4">
+                                 No departments found. <a href="{% url 'add_department' %}">Add one!</a>
+                              </td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <footer><p>Copyright &copy; 2026 OurUniversity</p></footer>
+</div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/plugins/datatables/datatables.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>
+{% endblock %}

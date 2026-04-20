@@ -1,0 +1,301 @@
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Student, Parent, Teacher, Department, Subject
+from django.contrib import messages
+from .utilis import create_notification
+from django.utils.text import slugify
+from django.contrib.auth.decorators import login_required
+
+
+def get_notifications(request):
+    unread_notification = request.user.notification_set.filter(is_read=False)
+    return {
+        'unread_notification': unread_notification,
+        'unread_notification_count': unread_notification.count(),
+    }
+
+
+def make_unique_slug(first_name, last_name, student_id, instance_id=None):
+    base_slug = slugify(f"{first_name}-{last_name}-{student_id}")
+    slug = base_slug
+    qs = Student.objects.filter(slug=slug)
+    if instance_id:
+        qs = qs.exclude(pk=instance_id)
+    if qs.exists():
+        slug = f"{base_slug}-{instance_id or 1}"
+    return slug
+
+
+@login_required
+def add_student(request):
+    if request.method == "POST":
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        student_id = request.POST.get('student_id')
+        gender = request.POST.get('gender')
+        date_of_birth = request.POST.get('date_of_birth')
+        student_class = request.POST.get('student_class')
+        religion = request.POST.get('religion')
+        joining_date = request.POST.get('joining_date')
+        mobile_number = request.POST.get('mobile_number')
+        admission_number = request.POST.get('admission_number')
+        section = request.POST.get('section')
+        student_image = request.FILES.get('student_image')
+
+        father_name = request.POST.get('father_name')
+        father_occupation = request.POST.get('father_occupation')
+        father_mobile = request.POST.get('father_mobile')
+        father_email = request.POST.get('father_email')
+        mother_name = request.POST.get('mother_name')
+        mother_occupation = request.POST.get('mother_occupation')
+        mother_mobile = request.POST.get('mother_mobile')
+        mother_email = request.POST.get('mother_email')
+        present_address = request.POST.get('present_address')
+        permanent_address = request.POST.get('permanent_address')
+
+        parent = Parent.objects.create(
+            father_name=father_name,
+            father_occupation=father_occupation,
+            father_mobile=father_mobile,
+            father_email=father_email,
+            mother_name=mother_name,
+            mother_occupation=mother_occupation,
+            mother_mobile=mother_mobile,
+            mother_email=mother_email,
+            present_address=present_address,
+            permanent_address=permanent_address
+        )
+
+        slug = slugify(f"{first_name}-{last_name}-{student_id}")
+        student = Student.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            student_id=student_id,
+            gender=gender,
+            date_of_birth=date_of_birth,
+            student_class=student_class,
+            religion=religion,
+            joining_date=joining_date,
+            mobile_number=mobile_number,
+            admission_number=admission_number,
+            section=section,
+            student_image=student_image,
+            parent=parent,
+            slug=slug
+        )
+        create_notification(request.user, f"Added Student: {student.first_name} {student.last_name}")
+        messages.success(request, "Student added successfully!")
+        return redirect('student_list')
+
+    context = get_notifications(request)
+    return render(request, "students/add-student.html", context)
+
+
+@login_required
+def student_list(request):
+    students = Student.objects.select_related('parent').all()
+    context = {
+        'student_list': students,
+        **get_notifications(request),
+    }
+    return render(request, "students/students.html", context)
+
+
+@login_required
+def edit_student(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    parent = student.parent
+
+    if request.method == "POST":
+        student.first_name = request.POST.get('first_name')
+        student.last_name = request.POST.get('last_name')
+        student.student_id = request.POST.get('student_id')
+        student.gender = request.POST.get('gender')
+        student.date_of_birth = request.POST.get('date_of_birth')
+        student.student_class = request.POST.get('student_class')
+        student.religion = request.POST.get('religion')
+        student.joining_date = request.POST.get('joining_date')
+        student.mobile_number = request.POST.get('mobile_number')
+        student.admission_number = request.POST.get('admission_number')
+        student.section = request.POST.get('section')
+        if request.FILES.get('student_image'):
+            student.student_image = request.FILES.get('student_image')
+        student.slug = slugify(f"{student.first_name}-{student.last_name}-{student.student_id}")
+        student.save()
+
+        parent.father_name = request.POST.get('father_name')
+        parent.father_occupation = request.POST.get('father_occupation')
+        parent.father_mobile = request.POST.get('father_mobile')
+        parent.father_email = request.POST.get('father_email')
+        parent.mother_name = request.POST.get('mother_name')
+        parent.mother_occupation = request.POST.get('mother_occupation')
+        parent.mother_mobile = request.POST.get('mother_mobile')
+        parent.mother_email = request.POST.get('mother_email')
+        parent.present_address = request.POST.get('present_address')
+        parent.permanent_address = request.POST.get('permanent_address')
+        parent.save()
+
+        create_notification(request.user, f"Updated Student: {student.first_name} {student.last_name}")
+        messages.success(request, "Student updated successfully!")
+        return redirect('student_list')
+
+    context = {
+        'student': student,
+        'parent': parent,
+        **get_notifications(request),
+    }
+    return render(request, "students/edit-student.html", context)
+
+
+@login_required
+def view_student(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    context = {
+        'student': student,
+        **get_notifications(request),
+    }
+    return render(request, "students/student-details.html", context)
+
+
+@login_required
+def delete_student(request, slug):
+    if request.method == "POST":
+        student = get_object_or_404(Student, slug=slug)
+        student_name = f"{student.first_name} {student.last_name}"
+        student.delete()
+        create_notification(request.user, f"Deleted student: {student_name}")
+        messages.success(request, f"Student '{student_name}' deleted successfully!")
+        return redirect('student_list')
+    return HttpResponseForbidden()
+
+# ===================== TEACHER VIEWS =====================
+
+@login_required
+def teacher_list(request):
+    teachers = Teacher.objects.select_related('department', 'subject').all()
+    context = {
+        'teacher_list': teachers,
+        **get_notifications(request),
+    }
+    return render(request, "teachers/teacher-list.html", context)
+
+
+@login_required
+def add_teacher(request):
+    departments = Department.objects.all()
+    subjects = Subject.objects.all()
+    if request.method == "POST":
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        teacher_id = request.POST.get('teacher_id')
+        gender = request.POST.get('gender')
+        date_of_birth = request.POST.get('date_of_birth')
+        mobile_number = request.POST.get('mobile_number')
+        email = request.POST.get('email')
+        joining_date = request.POST.get('joining_date')
+        qualification = request.POST.get('qualification')
+        department_id = request.POST.get('department')
+        subject_id = request.POST.get('subject')
+        teacher_image = request.FILES.get('teacher_image')
+
+        base_slug = slugify(f"{first_name}-{last_name}-{teacher_id}")
+        slug = base_slug
+        counter = 1
+        while Teacher.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        Teacher.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            teacher_id=teacher_id,
+            gender=gender,
+            date_of_birth=date_of_birth,
+            mobile_number=mobile_number,
+            email=email,
+            joining_date=joining_date,
+            qualification=qualification,
+            department_id=department_id if department_id else None,
+            subject_id=subject_id if subject_id else None,
+            teacher_image=teacher_image,
+            slug=slug
+        )
+        create_notification(request.user, f"Added Teacher: {first_name} {last_name}")
+        messages.success(request, "Teacher added successfully!")
+        return redirect('teacher_list')
+
+    context = {
+        'departments': departments,
+        'subjects': subjects,
+        **get_notifications(request),
+    }
+    return render(request, "teachers/add-teacher.html", context)
+
+
+@login_required
+def view_teacher(request, slug):
+    teacher = get_object_or_404(Teacher, slug=slug)
+    context = {
+        'teacher': teacher,
+        **get_notifications(request),
+    }
+    return render(request, "teachers/teacher-details.html", context)
+
+
+# ===================== DEPARTMENT VIEWS =====================
+
+@login_required
+def department_list(request):
+    departments = Department.objects.all()
+    context = {
+        'department_list': departments,
+        **get_notifications(request),
+    }
+    return render(request, "departments/department-list.html", context)
+
+
+@login_required
+def add_department(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        Department.objects.create(name=name, description=description)
+        create_notification(request.user, f"Added Department: {name}")
+        messages.success(request, "Department added successfully!")
+        return redirect('department_list')
+    context = get_notifications(request)
+    return render(request, "departments/add-department.html", context)
+
+
+# ===================== SUBJECT VIEWS =====================
+
+@login_required
+def subject_list(request):
+    subjects = Subject.objects.select_related('department').all()
+    context = {
+        'subject_list': subjects,
+        **get_notifications(request),
+    }
+    return render(request, "subjects/subject-list.html", context)
+
+
+@login_required
+def add_subject(request):
+    departments = Department.objects.all()
+    if request.method == "POST":
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        department_id = request.POST.get('department')
+        Subject.objects.create(
+            name=name,
+            description=description,
+            department_id=department_id if department_id else None
+        )
+        create_notification(request.user, f"Added Subject: {name}")
+        messages.success(request, "Subject added successfully!")
+        return redirect('subject_list')
+    context = {
+        'departments': departments,
+        **get_notifications(request),
+    }
+    return render(request, "subjects/add-subject.html", context)
