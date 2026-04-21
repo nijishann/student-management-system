@@ -85,3 +85,25 @@ class Teacher(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+
+class Comment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.text[:30]}"
+
+
+class Like(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_like = models.BooleanField(default=True)  # True = Like, False = Dislike
+
+    class Meta:
+        unique_together = ('student', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} - {'Like' if self.is_like else 'Dislike'}"

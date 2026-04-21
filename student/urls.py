@@ -9,6 +9,11 @@ urlpatterns = [
     path('edit/<slug:slug>/', views.edit_student, name='edit_student'),
     path('delete/<slug:slug>/', views.delete_student, name='delete_student'),
 
+    # Comment & Like 
+    path('view/<slug:slug>/comment/', views.add_comment, name='add_comment'),
+    path('view/<slug:slug>/like/', views.toggle_like, name='toggle_like'),
+
+
     # Teacher
     path('teachers/', views.teacher_list, name='teacher_list'),
     path('teachers/add/', views.add_teacher, name='add_teacher'),

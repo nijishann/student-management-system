@@ -17,7 +17,7 @@
          </div>
          <div class="col-auto text-right float-right ml-auto">
             <a href="{% url 'edit_student' student.slug %}" class="btn btn-primary mr-2">
-               <i class="fas fa-pen mr-1"></i> Edit Student
+               <i class="fas fa-pen mr-1"></i> Edit
             </a>
             <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
                <i class="fas fa-arrow-left mr-1"></i> Back
@@ -29,82 +29,100 @@
    <!-- Profile Card -->
    <div class="card">
       <div class="card-body">
-         <div class="row">
-            <div class="col-md-12">
-               <div class="about-info">
-                  <h4>Student Profile</h4>
-                  <div class="media mt-3">
-                     {% if student.student_image %}
-                     <img src="{{ student.student_image.url }}" class="mr-3 rounded-circle" width="80" height="80" alt="{{ student.first_name }}">
-                     {% else %}
-                     <img src="{% static 'assets/img/profiles/avatar-09.jpg' %}" class="mr-3 rounded-circle" width="80" height="80" alt="No Image">
-                     {% endif %}
-                     <div class="media-body">
-                        <ul>
-                           <li><span class="title-span">Full Name :</span> <span class="info-span">{{ student.first_name }} {{ student.last_name }}</span></li>
-                           <li><span class="title-span">Student ID :</span> <span class="info-span">{{ student.student_id }}</span></li>
-                           <li><span class="title-span">Admission No :</span> <span class="info-span">{{ student.admission_number }}</span></li>
-                           <li><span class="title-span">Class :</span> <span class="info-span">{{ student.student_class }}</span></li>
-                           <li><span class="title-span">Section :</span> <span class="info-span">{{ student.section }}</span></li>
-                           <li><span class="title-span">Gender :</span> <span class="info-span">{{ student.gender }}</span></li>
-                           <li><span class="title-span">Date of Birth :</span> <span class="info-span">{{ student.date_of_birth|date:"d M Y" }}</span></li>
-                           <li><span class="title-span">Religion :</span> <span class="info-span">{{ student.religion }}</span></li>
-                           <li><span class="title-span">Mobile :</span> <span class="info-span">{{ student.mobile_number }}</span></li>
-                           <li><span class="title-span">Joining Date :</span> <span class="info-span">{{ student.joining_date|date:"d M Y" }}</span></li>
-                        </ul>
-                     </div>
+         <div class="media mt-3">
+            {% if student.student_image %}
+            <img src="{{ student.student_image.url }}" class="mr-3 rounded-circle" width="80" height="80">
+            {% else %}
+            <img src="{% static 'assets/img/profiles/avatar-09.jpg' %}" class="mr-3 rounded-circle" width="80" height="80">
+            {% endif %}
+            <div class="media-body">
+               <h4>{{ student.first_name }} {{ student.last_name }}</h4>
+               <p class="text-muted">Class: {{ student.student_class }} | Section: {{ student.section }}</p>
+            </div>
+         </div>
+
+         <div class="row mt-4">
+            <div class="col-md-6">
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Student ID:</strong></td><td>{{ student.student_id }}</td></tr>
+                  <tr><td><strong>Gender:</strong></td><td>{{ student.gender }}</td></tr>
+                  <tr><td><strong>Date of Birth:</strong></td><td>{{ student.date_of_birth|date:"d M Y" }}</td></tr>
+                  <tr><td><strong>Religion:</strong></td><td>{{ student.religion }}</td></tr>
+                  <tr><td><strong>Mobile:</strong></td><td>{{ student.mobile_number }}</td></tr>
+               </table>
+            </div>
+            <div class="col-md-6">
+               <table class="table table-borderless table-sm">
+                  <tr><td><strong>Admission No:</strong></td><td>{{ student.admission_number }}</td></tr>
+                  <tr><td><strong>Joining Date:</strong></td><td>{{ student.joining_date|date:"d M Y" }}</td></tr>
+                  <tr><td><strong>Father:</strong></td><td>{{ student.parent.father_name }}</td></tr>
+                  <tr><td><strong>Mother:</strong></td><td>{{ student.parent.mother_name }}</td></tr>
+                  <tr><td><strong>Address:</strong></td><td>{{ student.parent.present_address }}</td></tr>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Like / Dislike -->
+   <div class="card mt-3">
+      <div class="card-body">
+         <h5 class="card-title mb-3">Reaction</h5>
+         <button id="likeBtn" class="btn mr-2 {% if user_reaction and user_reaction.is_like %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="fas fa-thumbs-up mr-1"></i> Like
+            <span id="likeCount" class="badge badge-light ml-1">{{ like_count }}</span>
+         </button>
+         <button id="dislikeBtn" class="btn {% if user_reaction and not user_reaction.is_like %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            <i class="fas fa-thumbs-down mr-1"></i> Dislike
+            <span id="dislikeCount" class="badge badge-light ml-1">{{ dislike_count }}</span>
+         </button>
+      </div>
+   </div>
+
+   <!-- Comments Section -->
+   <div class="card mt-3">
+      <div class="card-body">
+         <h5 class="card-title mb-3">
+            Comments <span class="badge badge-secondary" id="commentCount">{{ comments.count }}</span>
+         </h5>
+
+         <!-- Comment Input -->
+         <div class="d-flex mb-4">
+            <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" class="rounded-circle mr-3" width="40" height="40">
+            <div class="flex-grow-1">
+               <div class="input-group">
+                  <input type="text" id="commentInput" class="form-control" placeholder="Write a comment...">
+                  <div class="input-group-append">
+                     <button class="btn btn-primary" id="submitComment">
+                        <i class="fas fa-paper-plane"></i> Post
+                     </button>
                   </div>
                </div>
             </div>
          </div>
 
-         <!-- Address -->
-         <div class="row mt-3">
-            <div class="col-md-6">
-               <h5>Present Address</h5>
-               <p>{{ student.parent.present_address }}</p>
+         <!-- Comments List -->
+         <div id="commentsList">
+            {% for comment in comments %}
+            <div class="media mb-3" id="comment-{{ comment.id }}">
+               <img src="{% static 'assets/img/profiles/avatar-02.jpg' %}" class="rounded-circle mr-3" width="40" height="40">
+               <div class="media-body bg-light p-3 rounded">
+                  <div class="d-flex justify-content-between">
+                     <h6 class="mb-1 text-primary">{{ comment.user.username }}</h6>
+                     <small class="text-muted">{{ comment.created_at|date:"d M Y, h:i A" }}</small>
+                  </div>
+                  <p class="mb-0">{{ comment.text }}</p>
+               </div>
             </div>
-            <div class="col-md-6">
-               <h5>Permanent Address</h5>
-               <p>{{ student.parent.permanent_address }}</p>
-            </div>
-         </div>
-      </div>
-   </div>
-
-   <!-- Parent Info -->
-   <div class="card mt-3">
-      <div class="card-header">
-         <h5 class="card-title mb-0">Parent / Guardian Information</h5>
-      </div>
-      <div class="card-body">
-         <div class="row">
-            <div class="col-md-6">
-               <h6 class="text-primary"><i class="fas fa-male mr-1"></i> Father's Details</h6>
-               <table class="table table-borderless table-sm">
-                  <tr><td><strong>Name:</strong></td><td>{{ student.parent.father_name }}</td></tr>
-                  <tr><td><strong>Occupation:</strong></td><td>{{ student.parent.father_occupation|default:"N/A" }}</td></tr>
-                  <tr><td><strong>Mobile:</strong></td><td>{{ student.parent.father_mobile }}</td></tr>
-                  <tr><td><strong>Email:</strong></td><td>{{ student.parent.father_email }}</td></tr>
-               </table>
-            </div>
-            <div class="col-md-6">
-               <h6 class="text-danger"><i class="fas fa-female mr-1"></i> Mother's Details</h6>
-               <table class="table table-borderless table-sm">
-                  <tr><td><strong>Name:</strong></td><td>{{ student.parent.mother_name }}</td></tr>
-                  <tr><td><strong>Occupation:</strong></td><td>{{ student.parent.mother_occupation|default:"N/A" }}</td></tr>
-                  <tr><td><strong>Mobile:</strong></td><td>{{ student.parent.mother_mobile }}</td></tr>
-                  <tr><td><strong>Email:</strong></td><td>{{ student.parent.mother_email }}</td></tr>
-               </table>
-            </div>
+            {% empty %}
+            <p class="text-muted text-center" id="noComment">No comments yet. Be the first to comment!</p>
+            {% endfor %}
          </div>
       </div>
    </div>
 
 </div>
-<footer>
-   <p>Copyright &copy; 2026 OurUniversity</p>
-</footer>
+<footer><p>Copyright &copy; 2026 OurUniversity</p></footer>
 </div>
 </div>
 
@@ -113,6 +131,81 @@
 <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
 <script src="{% static 'assets/js/script.js' %}"></script>
+
+<script>
+   const csrfToken = "{{ csrf_token }}";
+   const commentUrl = "{% url 'add_comment' student.slug %}";
+   const likeUrl = "{% url 'toggle_like' student.slug %}";
+
+   // ========== COMMENT ==========
+   $("#submitComment").click(function () {
+      const text = $("#commentInput").val().trim();
+      if (!text) {
+         alert("Comment লিখুন!");
+         return;
+      }
+      $.ajax({
+         url: commentUrl,
+         type: "POST",
+         contentType: "application/json",
+         headers: { "X-CSRFToken": csrfToken },
+         data: JSON.stringify({ text: text }),
+         success: function (data) {
+            $("#noComment").remove();
+            const html = `
+               <div class="media mb-3" id="comment-${data.id}">
+                  <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" class="rounded-circle mr-3" width="40" height="40">
+                  <div class="media-body bg-light p-3 rounded">
+                     <div class="d-flex justify-content-between">
+                        <h6 class="mb-1 text-primary">${data.username}</h6>
+                        <small class="text-muted">${data.created_at}</small>
+                     </div>
+                     <p class="mb-0">${data.text}</p>
+                  </div>
+               </div>`;
+            $("#commentsList").prepend(html);
+            $("#commentInput").val("");
+            const count = parseInt($("#commentCount").text()) + 1;
+            $("#commentCount").text(count);
+         },
+         error: function () {
+            alert("Error! Comment post হয়নি।");
+         }
+      });
+   });
+
+   // Enter key দিয়েও comment করা যাবে
+   $("#commentInput").keypress(function (e) {
+      if (e.which === 13) $("#submitComment").click();
+   });
+
+   // ========== LIKE / DISLIKE ==========
+   function sendReaction(isLike) {
+      $.ajax({
+         url: likeUrl,
+         type: "POST",
+         contentType: "application/json",
+         headers: { "X-CSRFToken": csrfToken },
+         data: JSON.stringify({ is_like: isLike }),
+         success: function (data) {
+            $("#likeCount").text(data.like_count);
+            $("#dislikeCount").text(data.dislike_count);
+         }
+      });
+   }
+
+   $("#likeBtn").click(function () {
+      $(this).toggleClass("btn-primary btn-outline-primary");
+      $("#dislikeBtn").removeClass("btn-danger").addClass("btn-outline-danger");
+      sendReaction(true);
+   });
+
+   $("#dislikeBtn").click(function () {
+      $(this).toggleClass("btn-danger btn-outline-danger");
+      $("#likeBtn").removeClass("btn-primary").addClass("btn-outline-primary");
+      sendReaction(false);
+   });
+</script>
 </body>
 </html>
 {% endblock %}
