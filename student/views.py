@@ -1,14 +1,15 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Student, Parent, Teacher, Department, Comment, Like
+from .models import Student, Parent, Teacher, Department, Subject, Comment, Like, StudentRegistration
 from django.contrib import messages
 from .utilis import create_notification
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
+from django.conf import settings
 import json
-
+import random
 
 def get_notifications(request):
     unread_notification = request.user.notification_set.filter(is_read=False)
@@ -362,3 +363,142 @@ def add_subject(request):
         **get_notifications(request),
     }
     return render(request, "subjects/add-subject.html", context)
+
+
+# ========== REGISTRATION PAGE ==========
+
+def register_page(request):
+    return render(request, "registration/register.html")
+
+
+# ========== REALTIME USERNAME CHECK ==========
+
+def check_username(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'available': False, 'message': 'Username লিখুন'})
+    if len(username) < 3:
+        return JsonResponse({'available': False, 'message': 'কমপক্ষে ৩ অক্ষর দিন'})
+    exists = StudentRegistration.objects.filter(username=username).exists()
+    if exists:
+        return JsonResponse({'available': False, 'message': '❌ এই username টি নেওয়া হয়ে গেছে'})
+    return JsonResponse({'available': True, 'message': '✅ এই username টি পাওয়া যাচ্ছে'})
+
+
+# ========== EMAIL OTP SEND ==========
+
+def send_email_otp(request):
+    email = request.GET.get('email', '').strip()
+    if not email:
+        return JsonResponse({'success': False, 'message': 'Email দিন'})
+
+    # Email already exists check
+    if StudentRegistration.objects.filter(email=email).exists():
+        return JsonResponse({'success': False, 'message': '❌ এই Email টি আগে থেকে registered'})
+
+    # OTP generate
+    otp = str(random.randint(100000, 999999))
+    request.session['email_otp'] = otp
+    request.session['email_to_verify'] = email
+
+    # Email পাঠান
+    try:
+        send_mail(
+            subject='Email Verification OTP - Student Management System',
+            message=f'আপনার OTP কোড হলো: {otp}\n\nএই কোডটি ৫ মিনিটের জন্য valid।',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        return JsonResponse({'success': True, 'message': f'✅ OTP পাঠানো হয়েছে {email} তে'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Email পাঠাতে সমস্যা হয়েছে: {str(e)}'})
+
+
+# ========== EMAIL OTP VERIFY ==========
+
+def verify_email_otp(request):
+    otp_input = request.GET.get('otp', '').strip()
+    saved_otp = request.session.get('email_otp', '')
+    if not saved_otp:
+        return JsonResponse({'success': False, 'message': 'আগে OTP পাঠান'})
+    if otp_input == saved_otp:
+        request.session['email_verified'] = True
+        return JsonResponse({'success': True, 'message': '✅ Email সফলভাবে verified!'})
+    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+
+
+# ========== PHONE OTP SEND (Simulated) ==========
+
+def send_phone_otp(request):
+    phone = request.GET.get('phone', '').strip()
+    if not phone:
+        return JsonResponse({'success': False, 'message': 'Phone number দিন'})
+    if len(phone) < 11:
+        return JsonResponse({'success': False, 'message': '❌ সঠিক phone number দিন'})
+
+    # Phone already exists check
+    if StudentRegistration.objects.filter(phone=phone).exists():
+        return JsonResponse({'success': False, 'message': '❌ এই Phone number টি আগে থেকে registered'})
+
+    # OTP generate (এখানে simulate করছি — real SMS gateway লাগবে)
+    otp = str(random.randint(100000, 999999))
+    request.session['phone_otp'] = otp
+    request.session['phone_to_verify'] = phone
+
+    # Development এ OTP টা response এ দেখাব
+    return JsonResponse({
+        'success': True,
+        'message': f'✅ OTP পাঠানো হয়েছে {phone} নম্বরে',
+        'dev_otp': otp  # Production এ এই line টা সরিয়ে দিন
+    })
+
+
+# ========== PHONE OTP VERIFY ==========
+
+def verify_phone_otp(request):
+    otp_input = request.GET.get('otp', '').strip()
+    saved_otp = request.session.get('phone_otp', '')
+    if not saved_otp:
+        return JsonResponse({'success': False, 'message': 'আগে OTP পাঠান'})
+    if otp_input == saved_otp:
+        request.session['phone_verified'] = True
+        return JsonResponse({'success': True, 'message': '✅ Phone সফলভাবে verified!'})
+    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+
+
+# ========== FINAL REGISTRATION SUBMIT ==========
+
+def register_submit(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        password = request.POST.get('password')
+
+        # Verification check
+        if not request.session.get('email_verified'):
+            messages.error(request, 'Email verify করুন!')
+            return redirect('register_page')
+        if not request.session.get('phone_verified'):
+            messages.error(request, 'Phone verify করুন!')
+            return redirect('register_page')
+
+        # Save registration
+        StudentRegistration.objects.create(
+            username=username,
+            email=email,
+            phone=phone,
+            password=password,
+            is_email_verified=True,
+            is_phone_verified=True,
+        )
+
+        # Session clear
+        for key in ['email_otp', 'phone_otp', 'email_verified', 'phone_verified']:
+            request.session.pop(key, None)
+
+        messages.success(request, '✅ Registration সফল হয়েছে!')
+        return redirect('login')
+
+    return redirect('register_page')

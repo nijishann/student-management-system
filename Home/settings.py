@@ -128,3 +128,13 @@ LOGOUT_REDIRECT_URL = 'login'    # লগআউট করলে যেখান�
 CSRF_TRUSTED_ORIGINS = [
    'https://simsproject.up.railway.app',
 ]
+
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ncnoimul2@gmail.com'
+EMAIL_HOST_PASSWORD = 'owef dfbt afdz oyqz'
+DEFAULT_FROM_EMAIL = 'ncnoimul2@gmail.com'
