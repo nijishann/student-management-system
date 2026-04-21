@@ -136,5 +136,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ncnoimul2@gmail.com'
-EMAIL_HOST_PASSWORD = 'owef dfbt afdz oyqz'
+EMAIL_HOST_PASSWORD = 'owefdfbtafdzoyqz'
 DEFAULT_FROM_EMAIL = 'ncnoimul2@gmail.com'
