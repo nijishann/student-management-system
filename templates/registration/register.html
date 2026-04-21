@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Register - Student Management System</title>
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+   <link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+   <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+   <style>
+      body {
+         font-family: 'Poppins', sans-serif;
+         background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+         min-height: 100vh;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 20px;
+      }
+      .register-card {
+         background: white;
+         border-radius: 20px;
+         padding: 40px;
+         width: 100%;
+         max-width: 600px;
+         box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      }
+      .register-card h2 {
+         color: #1e3a8a;
+         font-weight: 700;
+         margin-bottom: 30px;
+         text-align: center;
+      }
+      .form-label { font-weight: 500; color: #374151; }
+      .status-msg { font-size: 13px; margin-top: 5px; font-weight: 500; }
+      .otp-section { display: none; margin-top: 10px; }
+      .verified-badge {
+         display: none;
+         color: #10b981;
+         font-weight: 600;
+         font-size: 13px;
+      }
+      .btn-primary { background: #1e3a8a; border: none; border-radius: 10px; }
+      .btn-primary:hover { background: #1e40af; }
+      .form-control { border-radius: 10px; padding: 10px 15px; }
+      .input-group .form-control { border-radius: 10px 0 0 10px; }
+      .input-group .btn { border-radius: 0 10px 10px 0; }
+   </style>
+</head>
+<body>
+<div class="register-card">
+   <h2><i class="fas fa-user-plus mr-2"></i>Registration</h2>
+
+   {% if messages %}
+   {% for message in messages %}
+   <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+   </div>
+   {% endfor %}
+   {% endif %}
+
+   <form method="POST" action="{% url 'register_submit' %}" id="registerForm">
+      {% csrf_token %}
+
+      <!-- Username -->
+      <div class="form-group">
+         <label class="form-label">Username <span class="text-danger">*</span></label>
+         <input type="text" class="form-control" name="username" id="usernameInput" placeholder="Enter username" autocomplete="off" required>
+         <div class="status-msg" id="usernameStatus"></div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+         <label class="form-label">Email <span class="text-danger">*</span></label>
+         <div class="input-group">
+            <input type="email" class="form-control" name="email" id="emailInput" placeholder="Enter email" required>
+            <div class="input-group-append">
+               <button type="button" class="btn btn-outline-primary" id="sendEmailOtp">
+                  <i class="fas fa-paper-plane mr-1"></i>Send OTP
+               </button>
+            </div>
+         </div>
+         <div class="status-msg" id="emailStatus"></div>
+         <div class="otp-section" id="emailOtpSection">
+            <div class="input-group mt-2">
+               <input type="text" class="form-control" id="emailOtpInput" placeholder="Enter 6-digit OTP" maxlength="6">
+               <div class="input-group-append">
+                  <button type="button" class="btn btn-success" id="verifyEmailOtp">Verify</button>
+               </div>
+            </div>
+            <div class="status-msg" id="emailOtpStatus"></div>
+         </div>
+         <div class="verified-badge" id="emailVerifiedBadge">
+            <i class="fas fa-check-circle mr-1"></i>Email Verified!
+         </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+         <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+         <div class="input-group">
+            <input type="text" class="form-control" name="phone" id="phoneInput" placeholder="e.g. 01700000000" required>
+            <div class="input-group-append">
+               <button type="button" class="btn btn-outline-primary" id="sendPhoneOtp">
+                  <i class="fas fa-mobile-alt mr-1"></i>Send OTP
+               </button>
+            </div>
+         </div>
+         <div class="status-msg" id="phoneStatus"></div>
+         <div class="otp-section" id="phoneOtpSection">
+            <div class="input-group mt-2">
+               <input type="text" class="form-control" id="phoneOtpInput" placeholder="Enter 6-digit OTP" maxlength="6">
+               <div class="input-group-append">
+                  <button type="button" class="btn btn-success" id="verifyPhoneOtp">Verify</button>
+               </div>
+            </div>
+            <div class="status-msg" id="phoneOtpStatus"></div>
+         </div>
+         <div class="verified-badge" id="phoneVerifiedBadge">
+            <i class="fas fa-check-circle mr-1"></i>Phone Verified!
+         </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+         <label class="form-label">Password <span class="text-danger">*</span></label>
+         <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg mt-3" id="submitBtn">
+         <i class="fas fa-user-check mr-2"></i>Register
+      </button>
+
+      <p class="text-center mt-3 text-muted">
+         Already have an account? <a href="{% url 'login' %}">Login here</a>
+      </p>
+   </form>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<script>
+   // ========== USERNAME REALTIME CHECK ==========
+   let usernameTimer;
+   $("#usernameInput").on("input", function () {
+      clearTimeout(usernameTimer);
+      const username = $(this).val().trim();
+      const statusEl = $("#usernameStatus");
+
+      if (!username) {
+         statusEl.html('');
+         return;
+      }
+      statusEl.html('<span class="text-muted">Checking...</span>');
+
+      usernameTimer = setTimeout(function () {
+         $.get("{% url 'check_username' %}", { username: username }, function (data) {
+            if (data.available) {
+               statusEl.html(`<span class="text-success">${data.message}</span>`);
+            } else {
+               statusEl.html(`<span class="text-danger">${data.message}</span>`);
+            }
+         });
+      }, 500); // ০.৫ সেকেন্ড পর check করবে
+   });
+
+   // ========== EMAIL OTP SEND ==========
+   $("#sendEmailOtp").click(function () {
+      const email = $("#emailInput").val().trim();
+      if (!email) { alert("Email দিন!"); return; }
+
+      $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
+      const btn = $(this);
+
+      $.get("{% url 'send_email_otp' %}", { email: email }, function (data) {
+         $("#emailStatus").html(
+            `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
+         );
+         if (data.success) {
+            $("#emailOtpSection").slideDown();
+            btn.html('<i class="fas fa-redo mr-1"></i>Resend');
+         }
+         btn.prop('disabled', false);
+      });
+   });
+
+   // ========== EMAIL OTP VERIFY ==========
+   $("#verifyEmailOtp").click(function () {
+      const otp = $("#emailOtpInput").val().trim();
+      if (!otp) { alert("OTP দিন!"); return; }
+
+      $.get("{% url 'verify_email_otp' %}", { otp: otp }, function (data) {
+         $("#emailOtpStatus").html(
+            `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
+         );
+         if (data.success) {
+            $("#emailOtpSection").slideUp();
+            $("#emailVerifiedBadge").show();
+            $("#emailInput").prop('readonly', true);
+            $("#sendEmailOtp").prop('disabled', true);
+         }
+      });
+   });
+
+   // ========== PHONE OTP SEND ==========
+   $("#sendPhoneOtp").click(function () {
+      const phone = $("#phoneInput").val().trim();
+      if (!phone) { alert("Phone number দিন!"); return; }
+
+      $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
+      const btn = $(this);
+
+      $.get("{% url 'send_phone_otp' %}", { phone: phone }, function (data) {
+         $("#phoneStatus").html(
+            `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
+         );
+         if (data.success) {
+            $("#phoneOtpSection").slideDown();
+            // Development এ OTP দেখাবে
+            if (data.dev_otp) {
+               $("#phoneOtpStatus").html(
+                  `<span class="text-info">🔧 Dev Mode OTP: <strong>${data.dev_otp}</strong></span>`
+               );
+            }
+            btn.html('<i class="fas fa-redo mr-1"></i>Resend');
+         }
+         btn.prop('disabled', false);
+      });
+   });
+
+   // ========== PHONE OTP VERIFY ==========
+   $("#verifyPhoneOtp").click(function () {
+      const otp = $("#phoneOtpInput").val().trim();
+      if (!otp) { alert("OTP দিন!"); return; }
+
+      $.get("{% url 'verify_phone_otp' %}", { otp: otp }, function (data) {
+         $("#phoneOtpStatus").html(
+            `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
+         );
+         if (data.success) {
+            $("#phoneOtpSection").slideUp();
+            $("#phoneVerifiedBadge").show();
+            $("#phoneInput").prop('readonly', true);
+            $("#sendPhoneOtp").prop('disabled', true);
+         }
+      });
+   });
+
+   // ========== FORM SUBMIT CHECK ==========
+   $("#registerForm").submit(function (e) {
+      if ($("#emailVerifiedBadge").is(":hidden")) {
+         e.preventDefault();
+         alert("Email verify করুন!");
+         return;
+      }
+      if ($("#phoneVerifiedBadge").is(":hidden")) {
+         e.preventDefault();
+         alert("Phone number verify করুন!");
+         return;
+      }
+   });
+</script>
+</body>
+</html>

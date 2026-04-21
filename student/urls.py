@@ -9,10 +9,9 @@ urlpatterns = [
     path('edit/<slug:slug>/', views.edit_student, name='edit_student'),
     path('delete/<slug:slug>/', views.delete_student, name='delete_student'),
 
-    # Comment & Like 
+    # Comment & Like
     path('view/<slug:slug>/comment/', views.add_comment, name='add_comment'),
     path('view/<slug:slug>/like/', views.toggle_like, name='toggle_like'),
-
 
     # Teacher
     path('teachers/', views.teacher_list, name='teacher_list'),
@@ -26,4 +25,19 @@ urlpatterns = [
     # Subject
     path('subjects/', views.subject_list, name='subject_list'),
     path('subjects/add/', views.add_subject, name='add_subject'),
+
+    # Registration 
+    path('register/', views.register_page, name='register_page'),
+    path('register/submit/', views.register_submit, name='register_submit'),
+
+    # Realtime Username Check 
+    path('check-username/', views.check_username, name='check_username'),
+
+    # Email Verification 
+    path('send-email-otp/', views.send_email_otp, name='send_email_otp'),
+    path('verify-email-otp/', views.verify_email_otp, name='verify_email_otp'),
+
+    # Phone Verification 
+    path('send-phone-otp/', views.send_phone_otp, name='send_phone_otp'),
+    path('verify-phone-otp/', views.verify_phone_otp, name='verify_phone_otp'),
 ]

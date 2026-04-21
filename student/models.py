@@ -107,3 +107,17 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {'Like' if self.is_like else 'Dislike'}"
+
+class StudentRegistration(models.Model):
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(max_length=100, unique=True)
+    phone = models.CharField(max_length=15, unique=True)
+    password = models.CharField(max_length=255)
+    is_email_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
+    email_otp = models.CharField(max_length=6, blank=True)
+    phone_otp = models.CharField(max_length=6, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.username
