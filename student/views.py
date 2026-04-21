@@ -433,7 +433,7 @@ def verify_email_otp(request):
 def send_phone_otp(request):
     phone = request.GET.get('phone', '').strip()
     if not phone:
-        return JsonResponse({'success': False, 'message': 'Phone number দিন'})
+        return JsonResponse({'success': False, 'message': 'Phone number'})
     if len(phone) < 11:
         return JsonResponse({'success': False, 'message': '❌ সঠিক phone number দিন'})
 
@@ -449,7 +449,7 @@ def send_phone_otp(request):
     # Development এ OTP টা response এ দেখাব
     return JsonResponse({
         'success': True,
-        'message': f'✅ OTP Send {phone} নম্বরে',
+        'message': f'✅ OTP Send',
         'dev_otp': otp  # Production এ এই line টা সরিয়ে দিন
     })
 
