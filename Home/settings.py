@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-071%b6(84a!7f5jucuy8fi=4k7r4+c+#ply$%$&oiwl6#_x0#n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://simsproject.up.railway.app']
+ALLOWED_HOSTS = ['simsproject.up.railway.app']
 
 
 # Application definition
