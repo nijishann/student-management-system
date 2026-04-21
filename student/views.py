@@ -1,10 +1,13 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Student, Parent, Teacher, Department, Subject
+from .models import Student, Parent, Teacher, Department, Comment, Like
 from django.contrib import messages
 from .utilis import create_notification
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
 
 
 def get_notifications(request):
@@ -150,11 +153,71 @@ def edit_student(request, slug):
 @login_required
 def view_student(request, slug):
     student = get_object_or_404(Student, slug=slug)
+    comments = student.comments.select_related('user').order_by('-created_at')
+    like_count = student.likes.filter(is_like=True).count()
+    dislike_count = student.likes.filter(is_like=False).count()
+    user_reaction = student.likes.filter(user=request.user).first()
+
     context = {
         'student': student,
+        'comments': comments,
+        'like_count': like_count,
+        'dislike_count': dislike_count,
+        'user_reaction': user_reaction,
         **get_notifications(request),
     }
     return render(request, "students/student-details.html", context)
+
+
+@login_required
+@require_POST
+def add_comment(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    data = json.loads(request.body)
+    text = data.get('text', '').strip()
+    if not text:
+        return JsonResponse({'error': 'Empty comment'}, status=400)
+    comment = Comment.objects.create(
+        student=student,
+        user=request.user,
+        text=text
+    )
+    return JsonResponse({
+        'id': comment.id,
+        'username': comment.user.username,
+        'text': comment.text,
+        'created_at': comment.created_at.strftime("%d %b %Y, %I:%M %p")
+    })
+
+
+@login_required
+@require_POST
+def toggle_like(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    data = json.loads(request.body)
+    is_like = data.get('is_like')  # True or False
+
+    existing = Like.objects.filter(student=student, user=request.user).first()
+
+    if existing:
+        if existing.is_like == is_like:
+            # একই বাটনে আবার click করলে remove হবে
+            existing.delete()
+        else:
+            # অন্য বাটনে click করলে switch হবে
+            existing.is_like = is_like
+            existing.save()
+    else:
+        Like.objects.create(student=student, user=request.user, is_like=is_like)
+
+    like_count = student.likes.filter(is_like=True).count()
+    dislike_count = student.likes.filter(is_like=False).count()
+
+    return JsonResponse({
+        'like_count': like_count,
+        'dislike_count': dislike_count,
+    })
+
 
 
 @login_required
