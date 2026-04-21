@@ -449,7 +449,7 @@ def send_phone_otp(request):
     # Development এ OTP টা response এ দেখাব
     return JsonResponse({
         'success': True,
-        'message': f'✅ OTP Send',
+        'message': f'✅ OTP Send,(Demo: {otp})',
         'dev_otp': otp  # Production এ এই line টা সরিয়ে দিন
     })
 
