@@ -439,7 +439,7 @@ def send_phone_otp(request):
 
     # Phone already exists check
     if StudentRegistration.objects.filter(phone=phone).exists():
-        return JsonResponse({'success': False, 'message': '❌ এই Phone number টি আগে থেকে registered'})
+        return JsonResponse({'success': False, 'message': '❌ Already registered'})
 
     # OTP generate (এখানে simulate করছি — real SMS gateway লাগবে)
     otp = str(random.randint(100000, 999999))
@@ -449,7 +449,7 @@ def send_phone_otp(request):
     # Development এ OTP টা response এ দেখাব
     return JsonResponse({
         'success': True,
-        'message': f'✅ OTP পাঠানো হয়েছে {phone} নম্বরে',
+        'message': f'✅ OTP Send {phone} নম্বরে',
         'dev_otp': otp  # Production এ এই line টা সরিয়ে দিন
     })
 

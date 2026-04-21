@@ -221,9 +221,19 @@
             $("#phoneOtpSection").slideDown();
             // Development এ OTP দেখাবে
             if (data.dev_otp) {
-               $("#phoneOtpStatus").html(
-                  `<span class="text-info">🔧 Dev Mode OTP: <strong>${data.dev_otp}</strong></span>`
-               );
+                $("#phoneOtpStatus").html(`
+                   <div class="alert alert-info mt-2 p-2" style="border-radius:10px;">
+                      <i class="fas fa-info-circle mr-1"></i>
+                      <strong>Demo OTP:</strong> 
+                      <span style="font-size:20px; letter-spacing:3px; color:#1e3a8a;">
+                          <strong>${data.dev_otp}</strong>
+                      </span>
+                      <br>
+                      <small class="text-muted">
+                          (Real project এ SMS এ যাবে। এখন demo তে screen এ দেখাচ্ছে)
+                      </small>
+                  </div>
+                `);
             }
             btn.html('<i class="fas fa-redo mr-1"></i>Resend');
          }
