@@ -376,13 +376,13 @@ def register_page(request):
 def check_username(request):
     username = request.GET.get('username', '').strip()
     if not username:
-        return JsonResponse({'available': False, 'message': 'Username লিখুন'})
+        return JsonResponse({'available': False, 'message': 'Username here'})
     if len(username) < 3:
-        return JsonResponse({'available': False, 'message': 'কমপক্ষে ৩ অক্ষর দিন'})
+        return JsonResponse({'available': False, 'message': 'minimum 3 words'})
     exists = StudentRegistration.objects.filter(username=username).exists()
     if exists:
-        return JsonResponse({'available': False, 'message': '❌ এই username টি নেওয়া হয়ে গেছে'})
-    return JsonResponse({'available': True, 'message': '✅ এই username টি পাওয়া যাচ্ছে'})
+        return JsonResponse({'available': False, 'message': '❌ already registered'})
+    return JsonResponse({'available': True, 'message': '✅ username available'})
 
 
 # ========== EMAIL OTP SEND ==========
@@ -390,10 +390,10 @@ def check_username(request):
 def send_email_otp(request):
     email = request.GET.get('email', '').strip()
     if not email:
-        return JsonResponse({'success': False, 'message': 'Email দিন'})
+        return JsonResponse({'success': False, 'message': 'Email here'})
 
     if StudentRegistration.objects.filter(email=email).exists():
-        return JsonResponse({'success': False, 'message': '❌ এই Email টি আগে থেকে registered'})
+        return JsonResponse({'success': False, 'message': '❌ already registered'})
 
     otp = str(random.randint(100000, 999999))
     request.session['email_otp'] = otp
@@ -402,14 +402,14 @@ def send_email_otp(request):
     try:
         send_mail(
             subject='Email Verification OTP',
-            message=f'আপনার OTP: {otp}',
+            message=f'OTP: {otp}',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )
         return JsonResponse({
             'success': True,
-            'message': f'✅ OTP পাঠানো হয়েছে',
+            'message': f'✅ OTP Send',
             'dev_otp': otp  # Email এর OTP ও screen এ দেখাবে
         })
     except Exception as e:
@@ -425,11 +425,11 @@ def verify_email_otp(request):
     otp_input = request.GET.get('otp', '').strip()
     saved_otp = request.session.get('email_otp', '')
     if not saved_otp:
-        return JsonResponse({'success': False, 'message': 'আগে OTP পাঠান'})
+        return JsonResponse({'success': False, 'message': 'First OTP Send'})
     if otp_input == saved_otp:
         request.session['email_verified'] = True
-        return JsonResponse({'success': True, 'message': '✅ Email সফলভাবে verified!'})
-    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+        return JsonResponse({'success': True, 'message': '✅ Email are verified!'})
+    return JsonResponse({'success': False, 'message': '❌ OTP incorrect'})
 
 
 # ========== PHONE OTP SEND (Simulated) ==========
@@ -439,7 +439,7 @@ def send_phone_otp(request):
     if not phone:
         return JsonResponse({'success': False, 'message': 'Phone number'})
     if len(phone) < 11:
-        return JsonResponse({'success': False, 'message': '❌ সঠিক phone number দিন'})
+        return JsonResponse({'success': False, 'message': '❌ Correct phone number paste'})
 
     # Phone already exists check
     if StudentRegistration.objects.filter(phone=phone).exists():
@@ -464,11 +464,11 @@ def verify_phone_otp(request):
     otp_input = request.GET.get('otp', '').strip()
     saved_otp = request.session.get('phone_otp', '')
     if not saved_otp:
-        return JsonResponse({'success': False, 'message': 'আগে OTP পাঠান'})
+        return JsonResponse({'success': False, 'message': 'First OTP Send'})
     if otp_input == saved_otp:
         request.session['phone_verified'] = True
-        return JsonResponse({'success': True, 'message': '✅ Phone সফলভাবে verified!'})
-    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+        return JsonResponse({'success': True, 'message': '✅ Phone are verified!'})
+    return JsonResponse({'success': False, 'message': '❌ OTP incorrect'})
 
 
 # ========== FINAL REGISTRATION SUBMIT ==========
@@ -482,10 +482,10 @@ def register_submit(request):
 
         # Verification check
         if not request.session.get('email_verified'):
-            messages.error(request, 'Email verify করুন!')
+            messages.error(request, 'Verify email!')
             return redirect('register_page')
         if not request.session.get('phone_verified'):
-            messages.error(request, 'Phone verify করুন!')
+            messages.error(request, 'verify Phone!')
             return redirect('register_page')
 
         # Save registration
@@ -502,7 +502,7 @@ def register_submit(request):
         for key in ['email_otp', 'phone_otp', 'email_verified', 'phone_verified']:
             request.session.pop(key, None)
 
-        messages.success(request, '✅ Registration সফল হয়েছে!')
+        messages.success(request, '✅ Registration Successful')
         return redirect('login')
 
     return redirect('register_page')
