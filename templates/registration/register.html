@@ -176,15 +176,32 @@
       const btn = $(this);
 
       $.get("{% url 'send_email_otp' %}", { email: email }, function (data) {
-         $("#emailStatus").html(
-            `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
-         );
-         if (data.success) {
-            $("#emailOtpSection").slideDown();
-            btn.html('<i class="fas fa-redo mr-1"></i>Resend');
-         }
-         btn.prop('disabled', false);
-      });
+    $("#emailStatus").html(
+        `<span class="${data.success ? 'text-success' : 'text-danger'}">${data.message}</span>`
+    );
+    if (data.success) {
+        $("#emailOtpSection").slideDown();
+        btn.html('<i class="fas fa-redo mr-1"></i>Resend');
+
+        // Email OTP ও screen এ দেখাবে (Phone এর মতো)
+        if (data.dev_otp) {
+            $("#emailOtpStatus").html(`
+                <div class="alert alert-info mt-2 p-2" style="border-radius:10px;">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <strong>Demo OTP:</strong>
+                    <span style="font-size:20px; letter-spacing:3px; color:#1e3a8a;">
+                        <strong>${data.dev_otp}</strong>
+                    </span>
+                    <br>
+                    <small class="text-muted">
+                        (Real project এ Email এ যাবে। এখন demo তে screen এ দেখাচ্ছে)
+                    </small>
+                </div>
+            `);
+        }
+    }
+    btn.prop('disabled', false);
+});
    });
 
    // ========== EMAIL OTP VERIFY ==========
