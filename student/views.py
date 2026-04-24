@@ -392,27 +392,31 @@ def send_email_otp(request):
     if not email:
         return JsonResponse({'success': False, 'message': 'Email দিন'})
 
-    # Email already exists check
     if StudentRegistration.objects.filter(email=email).exists():
         return JsonResponse({'success': False, 'message': '❌ এই Email টি আগে থেকে registered'})
 
-    # OTP generate
     otp = str(random.randint(100000, 999999))
     request.session['email_otp'] = otp
     request.session['email_to_verify'] = email
 
-    # Email পাঠান
     try:
         send_mail(
-            subject='Email Verification OTP - Student Management System',
-            message=f'আপনার OTP কোড হলো: {otp}\n\nএই কোডটি ৫ মিনিটের জন্য valid।',
+            subject='Email Verification OTP',
+            message=f'আপনার OTP: {otp}',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )
-        return JsonResponse({'success': True, 'message': f'✅ OTP পাঠানো হয়েছে {email} তে'})
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ OTP পাঠানো হয়েছে',
+            'dev_otp': otp  # Email এর OTP ও screen এ দেখাবে
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Email পাঠাতে সমস্যা হয়েছে: {str(e)}'})
+        return JsonResponse({
+            'success': False,
+            'message': f'❌ Error: {str(e)}'  # Error টা দেখাবে
+        })
 
 
 # ========== EMAIL OTP VERIFY ==========
