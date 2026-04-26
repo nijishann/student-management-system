@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Registration Successful</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+      body { font-family: 'Poppins', sans-serif; }
+      .checkmark {
+         animation: scaleIn 0.5s ease-in-out;
+      }
+      @keyframes scaleIn {
+         0% { transform: scale(0); opacity: 0; }
+         70% { transform: scale(1.2); }
+         100% { transform: scale(1); opacity: 1; }
+      }
+      .card-animate {
+         animation: slideUp 0.6s ease-out;
+      }
+      @keyframes slideUp {
+         from { transform: translateY(30px); opacity: 0; }
+         to { transform: translateY(0); opacity: 1; }
+      }
+   </style>
+</head>
+<body class="min-h-screen flex items-center justify-center" 
+      style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+
+<div class="card-animate bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md text-center">
+   
+   <!-- Success Icon -->
+   <div class="checkmark mb-6">
+      <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+         <i class="fas fa-check-circle text-green-500 text-6xl"></i>
+      </div>
+   </div>
+
+   <!-- Message -->
+   <h2 class="text-3xl font-bold text-gray-800 mb-2">Registration Successful!</h2>
+   <p class="text-gray-500 mb-2">Welcome, <strong class="text-blue-600">{{ username }}</strong>!</p>
+   <p class="text-gray-400 text-sm mb-8">
+      আপনার account সফলভাবে তৈরি হয়েছে। এখন Dashboard এ login করুন।
+   </p>
+
+   <!-- User Info Card -->
+   <div class="bg-blue-50 rounded-2xl p-4 mb-8 text-left">
+      <h6 class="text-blue-800 font-semibold mb-3">
+         <i class="fas fa-user-circle mr-2"></i>Account Information
+      </h6>
+      <div class="space-y-2 text-sm">
+         <div class="flex justify-between">
+            <span class="text-gray-500">Username:</span>
+            <span class="font-semibold text-gray-700">{{ username }}</span>
+         </div>
+         <div class="flex justify-between">
+            <span class="text-gray-500">Email:</span>
+            <span class="font-semibold text-gray-700">{{ email }}</span>
+         </div>
+         <div class="flex justify-between">
+            <span class="text-gray-500">Phone:</span>
+            <span class="font-semibold text-gray-700">{{ phone }}</span>
+         </div>
+         <div class="flex justify-between">
+            <span class="text-gray-500">Email Verified:</span>
+            <span class="text-green-600 font-semibold">
+               <i class="fas fa-check-circle mr-1"></i>Yes
+            </span>
+         </div>
+         <div class="flex justify-between">
+            <span class="text-gray-500">Phone Verified:</span>
+            <span class="text-green-600 font-semibold">
+               <i class="fas fa-check-circle mr-1"></i>Yes
+            </span>
+         </div>
+      </div>
+   </div>
+
+   <!-- Login Button -->
+   <a href="{% url 'login' %}" 
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-blue-200">
+      <i class="fas fa-sign-in-alt"></i>
+      <span>Sign In to Dashboard</span>
+      <i class="fas fa-chevron-right text-xs"></i>
+   </a>
+
+   <p class="text-gray-400 text-xs mt-4">
+      Use your <strong>username</strong> and <strong>password</strong> to login
+   </p>
+</div>
+
+</body>
+</html>

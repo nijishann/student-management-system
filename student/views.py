@@ -502,14 +502,14 @@ def register_submit(request):
             messages.error(request, '❌ এই email টি আগে থেকে registered!')
             return redirect('register_page')
 
-        # Django User তৈরি করুন (এটা দিয়ে login হবে)
-        user = User.objects.create_user(
+        # Django User তৈরি করুন
+        User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        # StudentRegistration এ ও save করুন (extra info এর জন্য)
+        # StudentRegistration এ ও save করুন
         StudentRegistration.objects.create(
             username=username,
             email=email,
@@ -523,10 +523,11 @@ def register_submit(request):
         for key in ['email_otp', 'phone_otp', 'email_verified', 'phone_verified']:
             request.session.pop(key, None)
 
-        # Automatically login করিয়ে দিন
-        login(request, user)
-
-        messages.success(request, f'✅ স্বাগতম {username}! Registration সফল হয়েছে।')
-        return redirect('index')  # Dashboard এ নিয়ে যাবে
+        # Success page তে redirect করুন
+        return render(request, 'registration/success.html', {
+            'username': username,
+            'email': email,
+            'phone': phone,
+        })
 
     return redirect('register_page')
