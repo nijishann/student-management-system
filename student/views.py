@@ -531,3 +531,34 @@ def register_submit(request):
         })
 
     return redirect('register_page')
+
+
+# ========== REALTIME LOGIN USERNAME CHECK ==========
+def check_login_username(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'exists': False, 'message': ''})
+    
+    exists = User.objects.filter(username=username).exists()
+    if exists:
+        return JsonResponse({'exists': True, 'message': '✅ Username পাওয়া গেছে'})
+    return JsonResponse({'exists': False, 'message': '❌ এই Username টি registered নয়'})
+
+
+# ========== REALTIME LOGIN PASSWORD CHECK ==========
+def check_login_password(request):
+    username = request.GET.get('username', '').strip()
+    password = request.GET.get('password', '').strip()
+    
+    if not username or not password:
+        return JsonResponse({'correct': False, 'message': ''})
+    
+    from django.contrib.auth import authenticate
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        return JsonResponse({'correct': True, 'message': '✅ Password সঠিক'})
+    
+    # Username আছে কিনা চেক করুন
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'correct': False, 'message': '❌ Password ভুল!'})
+    return JsonResponse({'correct': False, 'message': '❌ আগে সঠিক Username দিন'})

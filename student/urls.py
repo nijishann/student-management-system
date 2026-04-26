@@ -40,4 +40,8 @@ urlpatterns = [
     # Phone Verification 
     path('send-phone-otp/', views.send_phone_otp, name='send_phone_otp'),
     path('verify-phone-otp/', views.verify_phone_otp, name='verify_phone_otp'),
+
+    # Login Realtime Check — নতুন
+    path('check-login-username/', views.check_login_username, name='check_login_username'),
+    path('check-login-password/', views.check_login_password, name='check_login_password'),
 ]
