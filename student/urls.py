@@ -44,4 +44,10 @@ urlpatterns = [
     # Login Realtime Check — নতুন
     path('check-login-username/', views.check_login_username, name='check_login_username'),
     path('check-login-password/', views.check_login_password, name='check_login_password'),
+
+    # Forget Password — নতুন
+    path('forget-password/', views.forget_password, name='forget_password'),
+    path('send-reset-otp/', views.send_reset_otp, name='send_reset_otp'),
+    path('verify-reset-otp/', views.verify_reset_otp, name='verify_reset_otp'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 ]
