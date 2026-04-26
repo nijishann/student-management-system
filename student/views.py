@@ -10,6 +10,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 import json
 import random
+from django.contrib.auth.models import User
+from django.contrib.auth import login
 
 def get_notifications(request):
     unread_notification = request.user.notification_set.filter(is_read=False)
@@ -376,13 +378,15 @@ def register_page(request):
 def check_username(request):
     username = request.GET.get('username', '').strip()
     if not username:
-        return JsonResponse({'available': False, 'message': 'Username here'})
+        return JsonResponse({'available': False, 'message': 'Username লিখুন'})
     if len(username) < 3:
-        return JsonResponse({'available': False, 'message': 'minimum 3 words'})
-    exists = StudentRegistration.objects.filter(username=username).exists()
+        return JsonResponse({'available': False, 'message': '❌ কমপক্ষে ৩ অক্ষর দিন'})
+
+    # Django User table এ check করুন
+    exists = User.objects.filter(username=username).exists()
     if exists:
-        return JsonResponse({'available': False, 'message': '❌ already registered'})
-    return JsonResponse({'available': True, 'message': '✅ username available'})
+        return JsonResponse({'available': False, 'message': '❌ এই username টি নেওয়া হয়ে গেছে'})
+    return JsonResponse({'available': True, 'message': '✅ এই username টি পাওয়া যাচ্ছে'})
 
 
 # ========== EMAIL OTP SEND ==========
@@ -482,13 +486,30 @@ def register_submit(request):
 
         # Verification check
         if not request.session.get('email_verified'):
-            messages.error(request, 'Verify email!')
+            messages.error(request, '❌ Email verify করুন!')
             return redirect('register_page')
         if not request.session.get('phone_verified'):
-            messages.error(request, 'verify Phone!')
+            messages.error(request, '❌ Phone verify করুন!')
             return redirect('register_page')
 
-        # Save registration
+        # Username already exists check
+        if User.objects.filter(username=username).exists():
+            messages.error(request, '❌ এই username টি আগে থেকে নেওয়া হয়েছে!')
+            return redirect('register_page')
+
+        # Email already exists check
+        if User.objects.filter(email=email).exists():
+            messages.error(request, '❌ এই email টি আগে থেকে registered!')
+            return redirect('register_page')
+
+        # Django User তৈরি করুন (এটা দিয়ে login হবে)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        # StudentRegistration এ ও save করুন (extra info এর জন্য)
         StudentRegistration.objects.create(
             username=username,
             email=email,
@@ -502,7 +523,10 @@ def register_submit(request):
         for key in ['email_otp', 'phone_otp', 'email_verified', 'phone_verified']:
             request.session.pop(key, None)
 
-        messages.success(request, '✅ Registration Successful')
-        return redirect('login')
+        # Automatically login করিয়ে দিন
+        login(request, user)
+
+        messages.success(request, f'✅ স্বাগতম {username}! Registration সফল হয়েছে।')
+        return redirect('index')  # Dashboard এ নিয়ে যাবে
 
     return redirect('register_page')
