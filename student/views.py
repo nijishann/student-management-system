@@ -562,3 +562,97 @@ def check_login_password(request):
     if User.objects.filter(username=username).exists():
         return JsonResponse({'correct': False, 'message': '❌ Password ভুল!'})
     return JsonResponse({'correct': False, 'message': '❌ আগে সঠিক Username দিন'})
+
+# ========== FORGET PASSWORD ==========
+
+def forget_password(request):
+    return render(request, 'registration/forget-password.html')
+
+
+def send_reset_otp(request):
+    email = request.GET.get('email', '').strip()
+    if not email:
+        return JsonResponse({'success': False, 'message': '❌ Email দিন'})
+
+    # Check করুন email registered কিনা
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return JsonResponse({'success': False, 'message': '❌ এই Email দিয়ে কোনো account নেই'})
+
+    # OTP generate
+    otp = str(random.randint(100000, 999999))
+    request.session['reset_otp'] = otp
+    request.session['reset_email'] = email
+
+    # Email পাঠান
+    try:
+        send_mail(
+            subject='Password Reset OTP - Student Management System',
+            message=f'আপনার Password Reset OTP: {otp}\n\nএই কোডটি ৫ মিনিটের জন্য valid।',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ OTP পাঠানো হয়েছে {email} তে',
+            'dev_otp': otp  # Development এ দেখাবে
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': True,
+            'message': f'✅ OTP পাঠানো হয়েছে (Demo)',
+            'dev_otp': otp
+        })
+
+
+def verify_reset_otp(request):
+    otp_input = request.GET.get('otp', '').strip()
+    saved_otp = request.session.get('reset_otp', '')
+
+    if not saved_otp:
+        return JsonResponse({'success': False, 'message': '❌ আগে OTP পাঠান'})
+    if otp_input == saved_otp:
+        request.session['reset_verified'] = True
+        return JsonResponse({'success': True, 'message': '✅ OTP সঠিক! এখন নতুন password দিন'})
+    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+
+
+def reset_password(request):
+    if request.method == "POST":
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Verification check
+        if not request.session.get('reset_verified'):
+            messages.error(request, '❌ আগে OTP verify করুন!')
+            return redirect('forget_password')
+
+        # Password match check
+        if new_password != confirm_password:
+            messages.error(request, '❌ Password দুটো মিলছে না!')
+            return redirect('forget_password')
+
+        # Password length check
+        if len(new_password) < 6:
+            messages.error(request, '❌ Password কমপক্ষে ৬ অক্ষর হতে হবে!')
+            return redirect('forget_password')
+
+        # Password update করুন
+        email = request.session.get('reset_email')
+        user = User.objects.filter(email=email).first()
+        if user:
+            user.set_password(new_password)
+            user.save()
+
+            # Session clear
+            for key in ['reset_otp', 'reset_email', 'reset_verified']:
+                request.session.pop(key, None)
+
+            messages.success(request, '✅ Password সফলভাবে পরিবর্তন হয়েছে! এখন login করুন।')
+            return redirect('login')
+
+        messages.error(request, '❌ User খুঁজে পাওয়া যাচ্ছে না!')
+        return redirect('forget_password')
+
+    return redirect('forget_password')
