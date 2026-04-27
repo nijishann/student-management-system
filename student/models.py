@@ -121,3 +121,15 @@ class StudentRegistration(models.Model):
 
     def __str__(self):
         return self.username
+
+
+class Rating(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)  # 1 to 5
+
+    class Meta:
+        unique_together = ('student', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.score} stars"

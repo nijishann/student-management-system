@@ -137,7 +137,7 @@
          </div>
       </div>
 
-      <!-- Star Students & Activity -->
+      <!-- Star Students & Notifications -->
       <div class="row">
          <div class="col-md-6 d-flex">
             <div class="card flex-fill">
@@ -167,7 +167,9 @@
                            </tr>
                            {% empty %}
                            <tr>
-                              <td colspan="5" class="text-center text-muted">No students yet. <a href="{% url 'add_student' %}">Add one!</a></td>
+                              <td colspan="5" class="text-center text-muted">
+                                 No students yet. <a href="{% url 'add_student' %}">Add one!</a>
+                              </td>
                            </tr>
                            {% endfor %}
                         </tbody>
@@ -186,7 +188,9 @@
                      {% for notification in unread_notification %}
                      <li class="feed-item">
                         <div class="feed-date">{{ notification.created_at|date:"M d" }}</div>
-                        <span class="feed-text"><a>{{ notification.user.username }}</a> {{ notification.message }}</span>
+                        <span class="feed-text">
+                           <a>{{ notification.user.username }}</a> {{ notification.message }}
+                        </span>
                      </li>
                      {% empty %}
                      <li class="feed-item">
@@ -230,6 +234,60 @@
             </div>
          </div>
       </div>
+
+      <!-- ✅ নতুন: YouTube + Google Map -->
+      <div class="row mt-4">
+
+         <!-- YouTube -->
+         <div class="col-md-6">
+            <div class="card">
+               <div class="card-header">
+                  <h5 class="card-title mb-0">
+                     <i class="fab fa-youtube text-danger mr-2"></i>Educational Videos
+                  </h5>
+               </div>
+               <div class="card-body">
+                  <p class="text-muted mb-2">
+                     <i class="fas fa-play-circle mr-1 text-danger"></i>Study Tips for Students
+                  </p>
+                  <div class="embed-responsive embed-responsive-16by9"
+                     style="border-radius:10px; overflow:hidden;">
+                     <iframe class="embed-responsive-item"
+                        src="https://www.youtube.com/embed/p68coLkJZPc"
+                        title="Study Tips"
+                        allowfullscreen>
+                     </iframe>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- Google Map -->
+         <div class="col-md-6">
+            <div class="card">
+               <div class="card-header">
+                  <h5 class="card-title mb-0">
+                     <i class="fas fa-map-marker-alt text-danger mr-2"></i>School Location
+                  </h5>
+               </div>
+               <div class="card-body p-0" style="border-radius:0 0 10px 10px; overflow:hidden;">
+                  <iframe
+                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902658925477!2d90.39935931536246!3d23.750882194644!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b087026b81%3A0x8fa563bbdd5904c2!2sDhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd"
+                     width="100%"
+                     height="280"
+                     style="border:0;"
+                     allowfullscreen=""
+                     loading="lazy">
+                  </iframe>
+                  <p class="text-muted text-center py-2 mb-0" style="font-size:13px;">
+                     <i class="fas fa-map-pin mr-1 text-danger"></i>Dhaka, Bangladesh
+                  </p>
+               </div>
+            </div>
+         </div>
+
+      </div>
+      <!-- YouTube + Google Map শেষ -->
 
    </div>
    <footer>
