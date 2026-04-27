@@ -40,7 +40,6 @@
                <p class="text-muted">Class: {{ student.student_class }} | Section: {{ student.section }}</p>
             </div>
          </div>
-
          <div class="row mt-4">
             <div class="col-md-6">
                <table class="table table-borderless table-sm">
@@ -79,14 +78,54 @@
       </div>
    </div>
 
+   <!-- ⭐ Rating Section -->
+   <div class="card mt-3">
+      <div class="card-body">
+         <h5 class="card-title mb-3">
+            Rate This Student
+            <span class="text-muted font-weight-normal" style="font-size:14px;">
+               ({{ total_ratings }} rating{% if total_ratings != 1 %}s{% endif %})
+            </span>
+         </h5>
+
+         <!-- Average Rating -->
+         <div class="d-flex align-items-center mb-3">
+            <div id="avgRatingNum" style="font-size:40px; font-weight:bold; color:#f59e0b; line-height:1;">
+               {{ avg_rating }}
+            </div>
+            <div class="ml-3">
+               <div id="avgStars">
+                  {% for i in "12345" %}
+                  {% if forloop.counter <= avg_rating %}
+                  <i class="fas fa-star text-warning" style="font-size:20px;"></i>
+                  {% else %}
+                  <i class="far fa-star text-warning" style="font-size:20px;"></i>
+                  {% endif %}
+                  {% endfor %}
+               </div>
+               <small class="text-muted">Average Rating</small>
+            </div>
+         </div>
+
+         <!-- User Star Input -->
+         <p class="mb-2"><strong>Your Rating:</strong></p>
+         <div id="starRating" style="font-size:35px; cursor:pointer; display:inline-block;">
+            {% for i in "12345" %}
+            <i class="{% if forloop.counter <= user_rating %}fas{% else %}far{% endif %} fa-star"
+               style="color:#f59e0b; transition: transform 0.1s;"
+               data-score="{{ forloop.counter }}"></i>
+            {% endfor %}
+         </div>
+         <div id="ratingMsg" class="mt-2 font-weight-medium"></div>
+      </div>
+   </div>
+
    <!-- Comments Section -->
    <div class="card mt-3">
       <div class="card-body">
          <h5 class="card-title mb-3">
             Comments <span class="badge badge-secondary" id="commentCount">{{ comments.count }}</span>
          </h5>
-
-         <!-- Comment Input -->
          <div class="d-flex mb-4">
             <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" class="rounded-circle mr-3" width="40" height="40">
             <div class="flex-grow-1">
@@ -100,8 +139,6 @@
                </div>
             </div>
          </div>
-
-         <!-- Comments List -->
          <div id="commentsList">
             {% for comment in comments %}
             <div class="media mb-3" id="comment-{{ comment.id }}">
@@ -121,6 +158,53 @@
       </div>
    </div>
 
+   <!-- 📺 YouTube Videos -->
+   <div class="card mt-3">
+      <div class="card-body">
+         <h5 class="card-title mb-3">
+            <i class="fab fa-youtube text-danger mr-2"></i>Student Learning Resources
+         </h5>
+         <div class="row">
+            <div class="col-md-6 mb-3">
+               <p class="text-muted mb-2"><i class="fas fa-play-circle mr-1"></i>Study Tips for Students</p>
+               <div class="embed-responsive embed-responsive-16by9" style="border-radius:12px; overflow:hidden;">
+                  <iframe class="embed-responsive-item"
+                     src="https://www.youtube.com/embed/p68coLkJZPc"
+                     title="Study Tips" allowfullscreen>
+                  </iframe>
+               </div>
+            </div>
+            <div class="col-md-6 mb-3">
+               <p class="text-muted mb-2"><i class="fas fa-play-circle mr-1"></i>How to be a Better Student</p>
+               <div class="embed-responsive embed-responsive-16by9" style="border-radius:12px; overflow:hidden;">
+                  <iframe class="embed-responsive-item"
+                     src="https://www.youtube.com/embed/IlU-zDU6aQ0"
+                     title="Better Student" allowfullscreen>
+                  </iframe>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- 🗺️ Google Map -->
+   <div class="card mt-3 mb-4">
+      <div class="card-body">
+         <h5 class="card-title mb-3">
+            <i class="fas fa-map-marker-alt text-danger mr-2"></i>School Location
+         </h5>
+         <div style="border-radius:12px; overflow:hidden;">
+            <iframe
+               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.902658925477!2d90.39935931536246!3d23.750882194644!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b087026b81%3A0x8fa563bbdd5904c2!2sDhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1620000000000!5m2!1sen!2sbd"
+               width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy">
+            </iframe>
+         </div>
+         <p class="text-muted text-center mt-2" style="font-size:13px;">
+            <i class="fas fa-map-pin mr-1"></i>Dhaka, Bangladesh
+         </p>
+      </div>
+   </div>
+
 </div>
 <footer><p>Copyright &copy; 2026 OurUniversity</p></footer>
 </div>
@@ -136,14 +220,12 @@
    const csrfToken = "{{ csrf_token }}";
    const commentUrl = "{% url 'add_comment' student.slug %}";
    const likeUrl = "{% url 'toggle_like' student.slug %}";
+   const rateUrl = "{% url 'rate_student' student.slug %}";
 
    // ========== COMMENT ==========
    $("#submitComment").click(function () {
       const text = $("#commentInput").val().trim();
-      if (!text) {
-         alert("Comment লিখুন!");
-         return;
-      }
+      if (!text) { alert("Comment লিখুন!"); return; }
       $.ajax({
          url: commentUrl,
          type: "POST",
@@ -168,13 +250,10 @@
             const count = parseInt($("#commentCount").text()) + 1;
             $("#commentCount").text(count);
          },
-         error: function () {
-            alert("Error! Comment post হয়নি।");
-         }
+         error: function () { alert("Error! Comment post হয়নি।"); }
       });
    });
 
-   // Enter key দিয়েও comment করা যাবে
    $("#commentInput").keypress(function (e) {
       if (e.which === 13) $("#submitComment").click();
    });
@@ -204,6 +283,66 @@
       $(this).toggleClass("btn-danger btn-outline-danger");
       $("#likeBtn").removeClass("btn-primary").addClass("btn-outline-primary");
       sendReaction(false);
+   });
+
+   // ========== STAR RATING ==========
+   const stars = document.querySelectorAll('#starRating .fa-star');
+
+   stars.forEach(star => {
+      // Hover effect
+      star.addEventListener('mouseover', function () {
+         const score = parseInt(this.dataset.score);
+         stars.forEach((s, i) => {
+            s.classList.toggle('fas', i < score);
+            s.classList.toggle('far', i >= score);
+            s.style.transform = i < score ? 'scale(1.2)' : 'scale(1)';
+         });
+      });
+
+      // Mouse leave
+      star.addEventListener('mouseleave', function () {
+         const userScore = parseInt("{{ user_rating }}");
+         stars.forEach((s, i) => {
+            s.classList.toggle('fas', i < userScore);
+            s.classList.toggle('far', i >= userScore);
+            s.style.transform = 'scale(1)';
+         });
+      });
+
+      // Click
+      star.addEventListener('click', function () {
+         const score = parseInt(this.dataset.score);
+         fetch(rateUrl, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ score: score })
+         })
+         .then(res => res.json())
+         .then(data => {
+            // Average stars update
+            let avgHTML = '';
+            for (let i = 1; i <= 5; i++) {
+               avgHTML += `<i class="${i <= Math.round(data.avg_rating) ? 'fas' : 'far'} fa-star text-warning" style="font-size:20px;"></i>`;
+            }
+            document.getElementById('avgStars').innerHTML = avgHTML;
+            document.getElementById('avgRatingNum').textContent = data.avg_rating;
+
+            // User stars update
+            stars.forEach((s, i) => {
+               s.classList.toggle('fas', i < score);
+               s.classList.toggle('far', i >= score);
+            });
+
+            // Message
+            const labels = ['', '😞 Poor', '😐 Fair', '🙂 Good', '😊 Great', '🌟 Excellent!'];
+            document.getElementById('ratingMsg').innerHTML =
+               `<span class="text-warning font-weight-bold">${labels[score]}</span>
+                <span class="text-muted ml-2">(${data.total_ratings} ratings)</span>`;
+         });
+      });
    });
 </script>
 </body>

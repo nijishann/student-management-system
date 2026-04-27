@@ -1,6 +1,6 @@
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Student, Parent, Teacher, Department, Subject, Comment, Like, StudentRegistration
+from .models import Student, Parent, Teacher, Department, Subject, Comment, Like, StudentRegistration, Rating
 from django.contrib import messages
 from .utilis import create_notification
 from django.utils.text import slugify
@@ -97,11 +97,31 @@ def add_student(request):
     return render(request, "students/add-student.html", context)
 
 
+from django.core.paginator import Paginator
+
 @login_required
 def student_list(request):
-    students = Student.objects.select_related('parent').all()
+    students_all = Student.objects.select_related('parent').all()
+    
+    # Search
+    search = request.GET.get('search', '')
+    if search:
+        students_all = students_all.filter(
+            first_name__icontains=search
+        ) | students_all.filter(
+            last_name__icontains=search
+        ) | students_all.filter(
+            student_id__icontains=search
+        )
+
+    # Pagination — প্রতি page এ ৫ জন
+    paginator = Paginator(students_all, 5)
+    page_number = request.GET.get('page')
+    student_list = paginator.get_page(page_number)
+
     context = {
-        'student_list': students,
+        'student_list': student_list,
+        'search': search,
         **get_notifications(request),
     }
     return render(request, "students/students.html", context)
@@ -161,16 +181,24 @@ def view_student(request, slug):
     dislike_count = student.likes.filter(is_like=False).count()
     user_reaction = student.likes.filter(user=request.user).first()
 
+    # Rating
+    ratings = student.ratings.all()
+    total_ratings = ratings.count()
+    avg_rating = round(sum(r.score for r in ratings) / total_ratings, 1) if total_ratings > 0 else 0
+    user_rating = ratings.filter(user=request.user).first()
+
     context = {
         'student': student,
         'comments': comments,
         'like_count': like_count,
         'dislike_count': dislike_count,
         'user_reaction': user_reaction,
+        'avg_rating': avg_rating,
+        'total_ratings': total_ratings,
+        'user_rating': user_rating.score if user_rating else 0,
         **get_notifications(request),
     }
     return render(request, "students/student-details.html", context)
-
 
 @login_required
 @require_POST
@@ -656,3 +684,30 @@ def reset_password(request):
         return redirect('forget_password')
 
     return redirect('forget_password')
+
+# ========== RATING ==========
+@login_required
+@require_POST
+def rate_student(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    data = json.loads(request.body)
+    score = int(data.get('score', 0))
+
+    if score < 1 or score > 5:
+        return JsonResponse({'error': 'Invalid score'}, status=400)
+
+    rating, created = Rating.objects.update_or_create(
+        student=student,
+        user=request.user,
+        defaults={'score': score}
+    )
+
+    ratings = student.ratings.all()
+    total_ratings = ratings.count()
+    avg_rating = round(sum(r.score for r in ratings) / total_ratings, 1) if total_ratings > 0 else 0
+
+    return JsonResponse({
+        'avg_rating': avg_rating,
+        'total_ratings': total_ratings,
+        'user_score': score,
+    })

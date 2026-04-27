@@ -50,4 +50,7 @@ urlpatterns = [
     path('send-reset-otp/', views.send_reset_otp, name='send_reset_otp'),
     path('verify-reset-otp/', views.verify_reset_otp, name='verify_reset_otp'),
     path('reset-password/', views.reset_password, name='reset_password'),
+
+    # Rating — নতুন
+    path('view/<slug:slug>/rate/', views.rate_student, name='rate_student'),
 ]
