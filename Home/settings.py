@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'school',
-    'student'
+    'student',
+    'sass_processor',
+    'graphene_django',
 ]
 
 MIDDLEWARE = [
@@ -132,9 +134,17 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'ncnoimul2@gmail.com'
-# EMAIL_HOST_PASSWORD = 'zyezxfectrauqsce'
-# DEFAULT_FROM_EMAIL = 'ncnoimul2@gmail.com'
+
+# SASS Configuration
+SASS_PROCESSOR_ROOT = BASE_DIR / 'static'
+SASS_PROCESSOR_INCLUDE_FILE_PATTERN = r'^.+\.scss$'
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
+
+# GraphQL
+GRAPHENE = {
+    "SCHEMA": "student.schema.schema"
+}

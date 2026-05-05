@@ -215,6 +215,8 @@
 <script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
 <script src="{% static 'assets/js/script.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <script>
    const csrfToken = "{{ csrf_token }}";
@@ -344,6 +346,41 @@
          });
       });
    });
+
+   // ========== GSAP Student Details ==========
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Profile card
+      gsap.from(".card:first-child", {
+         duration: 0.8,
+         y: -40,
+         opacity: 0,
+         ease: "power3.out"
+      });
+
+      // বাকি cards একটার পর একটা
+      gsap.from(".card.mt-3", {
+         duration: 0.6,
+         y: 50,
+         opacity: 0,
+         stagger: 0.2,
+         ease: "power2.out",
+         delay: 0.3,
+         scrollTrigger: {
+            trigger: ".card.mt-3",
+            start: "top 85%",
+         }
+      });
+
+      // Star rating hover effect
+      gsap.utils.toArray("#starRating .fa-star").forEach(star => {
+         star.addEventListener("mouseenter", () => {
+            gsap.to(star, { scale: 1.4, duration: 0.2, ease: "back.out(2)" });
+         });
+         star.addEventListener("mouseleave", () => {
+            gsap.to(star, { scale: 1, duration: 0.2 });
+         });
+      });
 </script>
 </body>
 </html>

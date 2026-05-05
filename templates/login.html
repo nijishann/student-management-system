@@ -173,6 +173,35 @@
             }, 600);
         });
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        // Login card animate
+        gsap.from(".glass-card", {
+            duration: 1,
+            y: 80,
+            opacity: 0,
+            ease: "power3.out"
+        });
 
+        // Logo animate
+        gsap.from(".floating", {
+            duration: 0.8,
+            scale: 0,
+            rotation: 180,
+            ease: "back.out(1.7)",
+            delay: 0.3
+        });
+
+        // Form fields একটার পর একটা আসবে
+        gsap.from("input, button, a", {
+            duration: 0.5,
+            x: -30,
+            opacity: 0,
+            stagger: 0.1,
+            ease: "power2.out",
+            delay: 0.6
+        });
+    </script>
 </body>
 </html>
