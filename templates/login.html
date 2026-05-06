@@ -194,14 +194,25 @@
         });
 
         // Form fields একটার পর একটা আসবে
-        gsap.from("input, button, a", {
-            duration: 0.5,
-            x: -30,
-            opacity: 0,
-            stagger: 0.1,
-            ease: "power2.out",
-            delay: 0.6
-        });
+        gsap.from("input", {
+                duration: 0.5,
+                x: -30,
+                opacity: 0,
+                stagger: 0.1,
+                ease: "power2.out",
+                delay: 0.6,
+                clearProps: "all"  // animation শেষে সব CSS clear হবে
+            });
+
+            gsap.from(".glass-card button, .glass-card a", {
+                duration: 0.5,
+                y: 20,
+                opacity: 0,
+                stagger: 0.1,
+                ease: "power2.out",
+                delay: 0.8,
+                clearProps: "all"
+            });
     </script>
 </body>
 </html>
