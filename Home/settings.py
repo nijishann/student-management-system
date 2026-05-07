@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'student',
     # 'sass_processor',
     'graphene_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -148,4 +149,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # GraphQL
 GRAPHENE = {
     "SCHEMA": "student.schema.schema"
+}
+
+
+# REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }
