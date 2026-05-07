@@ -41,7 +41,7 @@ def add_student(request):
         student_id = request.POST.get('student_id')
         gender = request.POST.get('gender')
         date_of_birth = request.POST.get('date_of_birth')
-        student_class = request.POST.get('student_class')
+        student_class = ""
         religion = request.POST.get('religion')
         joining_date = request.POST.get('joining_date')
         mobile_number = request.POST.get('mobile_number')
