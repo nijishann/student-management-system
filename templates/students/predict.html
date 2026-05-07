@@ -1,0 +1,232 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+
+<div class="page-wrapper">
+<div class="content container-fluid">
+
+   <div class="page-header">
+      <div class="row align-items-center">
+         <div class="col">
+            <h3 class="page-title">
+               <i class="fas fa-brain mr-2 text-primary"></i>AI Result Prediction
+            </h3>
+            <ul class="breadcrumb">
+               <li class="breadcrumb-item"><a href="{% url 'index' %}">Dashboard</a></li>
+               <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+               <li class="breadcrumb-item active">AI Prediction</li>
+            </ul>
+         </div>
+         <div class="col-auto">
+            <a href="{% url 'view_student' student.slug %}" class="btn btn-outline-secondary">
+               <i class="fas fa-arrow-left mr-1"></i>Back
+            </a>
+         </div>
+      </div>
+   </div>
+
+   <div class="row">
+
+      <!-- Input Form -->
+      <div class="col-md-6">
+         <div class="card">
+            <div class="card-header">
+               <h5 class="card-title mb-0">
+                  <i class="fas fa-edit mr-2 text-primary"></i>
+                  Enter {{ student.first_name }}'s Data
+               </h5>
+            </div>
+            <div class="card-body">
+               <form method="POST">
+                  {% csrf_token %}
+
+                  <div class="form-group">
+                     <label><i class="fas fa-calendar-check mr-1 text-info"></i> Attendance (%)</label>
+                     <input type="number" name="attendance" class="form-control"
+                        min="0" max="100" step="0.1" placeholder="e.g. 85" required>
+                     <small class="text-muted">0 থেকে 100 এর মধ্যে দিন</small>
+                  </div>
+
+                  <div class="form-group">
+                     <label><i class="fas fa-calculator mr-1 text-warning"></i> Mathematics Marks</label>
+                     <input type="number" name="math_marks" class="form-control"
+                        min="0" max="100" step="0.1" placeholder="e.g. 75" required>
+                  </div>
+
+                  <div class="form-group">
+                     <label><i class="fas fa-book mr-1 text-success"></i> English Marks</label>
+                     <input type="number" name="english_marks" class="form-control"
+                        min="0" max="100" step="0.1" placeholder="e.g. 68" required>
+                  </div>
+
+                  <div class="form-group">
+                     <label><i class="fas fa-flask mr-1 text-danger"></i> Science Marks</label>
+                     <input type="number" name="science_marks" class="form-control"
+                        min="0" max="100" step="0.1" placeholder="e.g. 72" required>
+                  </div>
+
+                  <div class="form-group">
+                     <label><i class="fas fa-language mr-1 text-primary"></i> Bangla Marks</label>
+                     <input type="number" name="bangla_marks" class="form-control"
+                        min="0" max="100" step="0.1" placeholder="e.g. 80" required>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block">
+                     <i class="fas fa-brain mr-2"></i>Predict Result
+                  </button>
+               </form>
+            </div>
+         </div>
+      </div>
+
+      <!-- Prediction Result -->
+      <div class="col-md-6">
+
+         {% if prediction_result %}
+         <div class="card">
+            <div class="card-header">
+               <h5 class="card-title mb-0">
+                  <i class="fas fa-chart-pie mr-2"></i>AI Prediction Result
+               </h5>
+            </div>
+            <div class="card-body text-center">
+
+               {% if prediction_result.prediction == "Pass" %}
+               <div class="mb-4">
+                  <div style="width:120px; height:120px; border-radius:50%; background: linear-gradient(135deg, #27ae60, #2ecc71); display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow: 0 10px 30px rgba(39,174,96,0.4);">
+                     <i class="fas fa-check-circle text-white" style="font-size:50px;"></i>
+                  </div>
+                  <h2 class="text-success mt-3 font-weight-bold">PASS ✅</h2>
+               </div>
+               {% elif prediction_result.prediction == "Borderline" %}
+               <div class="mb-4">
+                  <div style="width:120px; height:120px; border-radius:50%; background: linear-gradient(135deg, #f39c12, #e67e22); display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow: 0 10px 30px rgba(243,156,18,0.4);">
+                     <i class="fas fa-exclamation-circle text-white" style="font-size:50px;"></i>
+                  </div>
+                  <h2 class="text-warning mt-3 font-weight-bold">BORDERLINE ⚠️</h2>
+               </div>
+               {% else %}
+               <div class="mb-4">
+                  <div style="width:120px; height:120px; border-radius:50%; background: linear-gradient(135deg, #e74c3c, #c0392b); display:flex; align-items:center; justify-content:center; margin: 0 auto; box-shadow: 0 10px 30px rgba(231,76,60,0.4);">
+                     <i class="fas fa-times-circle text-white" style="font-size:50px;"></i>
+                  </div>
+                  <h2 class="text-danger mt-3 font-weight-bold">FAIL ❌</h2>
+               </div>
+               {% endif %}
+
+               <div class="row text-center mt-3">
+                  <div class="col-4">
+                     <div class="p-3 bg-light rounded">
+                        <h4 class="text-primary mb-0">{{ prediction_result.avg_marks }}%</h4>
+                        <small class="text-muted">Avg Marks</small>
+                     </div>
+                  </div>
+                  <div class="col-4">
+                     <div class="p-3 bg-light rounded">
+                        <h4 class="text-info mb-0">{{ prediction_result.confidence }}%</h4>
+                        <small class="text-muted">Confidence</small>
+                     </div>
+                  </div>
+                  <div class="col-4">
+                     <div class="p-3 bg-light rounded">
+                        <h4 class="text-warning mb-0">{{ prediction_result.failed_subjects }}</h4>
+                        <small class="text-muted">Failed Sub.</small>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="mt-4 text-left">
+                  <h6 class="font-weight-bold mb-3">Subject-wise Marks:</h6>
+                  {% for subject, marks in prediction_result.details.items %}
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                     <span class="text-capitalize">{{ subject }}</span>
+                     <div class="flex-grow-1 mx-3">
+                        <div class="progress" style="height:8px; border-radius:4px;">
+                           <div class="progress-bar
+                              {% if marks >= 50 %}bg-success
+                              {% elif marks >= 33 %}bg-warning
+                              {% else %}bg-danger{% endif %}"
+                              style="width: {{ marks|floatformat:0 }}%">
+                           </div>
+                        </div>
+                     </div>
+                     <span class="font-weight-bold">{{ marks }}%</span>
+                  </div>
+                  {% endfor %}
+               </div>
+
+            </div>
+         </div>
+         {% else %}
+         <div class="card">
+            <div class="card-body text-center py-5">
+               <i class="fas fa-brain text-primary" style="font-size:80px; opacity:0.3;"></i>
+               <h5 class="text-muted mt-3">Fill the form to get AI prediction</h5>
+               <p class="text-muted">AI analyze করে বলবে student Pass করবে কিনা</p>
+            </div>
+         </div>
+         {% endif %}
+
+         <!-- Previous Results -->
+         {% if previous_results %}
+         <div class="card mt-3">
+            <div class="card-header">
+               <h5 class="card-title mb-0">Previous Predictions</h5>
+            </div>
+            <div class="card-body p-0">
+               <table class="table table-sm mb-0">
+                  <thead>
+                     <tr>
+                        <th>Attendance</th>
+                        <th>Math Marks</th>
+                        <th>Result</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for result in previous_results %}
+                     <tr>
+                        <td>{{ result.attendance }}%</td>
+                        <td>{{ result.math_marks }}%</td>
+                        <td>
+                           <span class="badge
+                              {% if result.prediction == 'Pass' %}badge-success
+                              {% elif result.prediction == 'Borderline' %}badge-warning
+                              {% else %}badge-danger{% endif %}">
+                              {{ result.prediction }}
+                           </span>
+                        </td>
+                     </tr>
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         {% endif %}
+
+      </div>
+   </div>
+
+</div>
+<footer><p>Copyright &copy; 2026 OurUniversity</p></footer>
+</div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+   gsap.from(".card", {
+      duration: 0.6,
+      y: 30,
+      opacity: 0,
+      stagger: 0.2,
+      ease: "power2.out",
+      clearProps: "all"
+   });
+</script>
+</body>
+</html>
+{% endblock %}

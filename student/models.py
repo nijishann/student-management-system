@@ -133,3 +133,16 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.score} stars"
+
+class StudentResult(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
+    attendance = models.FloatField()      # 0 to 100
+    math_marks = models.FloatField()      # 0 to 100
+    english_marks = models.FloatField()   # 0 to 100
+    science_marks = models.FloatField()   # 0 to 100
+    bangla_marks = models.FloatField()    # 0 to 100
+    prediction = models.CharField(max_length=20, blank=True)  # Pass/Fail
+    confidence = models.FloatField(default=0)  # %
+
+    def __str__(self):
+        return f"{self.student.first_name} - {self.prediction}"

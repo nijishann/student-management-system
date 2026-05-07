@@ -1,6 +1,6 @@
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Student, Parent, Teacher, Department, Subject, Comment, Like, StudentRegistration, Rating
+from .models import Student, Parent, Teacher, Department, Subject, Comment, Like, StudentRegistration, Rating,StudentResult
 from django.contrib import messages
 from .utilis import create_notification
 from django.utils.text import slugify
@@ -12,6 +12,7 @@ import json
 import random
 from django.contrib.auth.models import User
 from django.contrib.auth import login
+from .ml_model import predict_result
 
 def get_notifications(request):
     unread_notification = request.user.notification_set.filter(is_read=False)
@@ -711,3 +712,46 @@ def rate_student(request, slug):
         'total_ratings': total_ratings,
         'user_score': score,
     })
+
+# ========== AI PREDICTION ==========
+
+@login_required
+def predict_student(request, slug):
+    student = get_object_or_404(Student, slug=slug)
+    prediction_result = None
+    previous_results = StudentResult.objects.filter(student=student).order_by('-id')[:5]
+
+    if request.method == "POST":
+        attendance = float(request.POST.get('attendance', 0))
+        math = float(request.POST.get('math_marks', 0))
+        english = float(request.POST.get('english_marks', 0))
+        science = float(request.POST.get('science_marks', 0))
+        bangla = float(request.POST.get('bangla_marks', 0))
+
+        # Prediction করুন
+        prediction_result = predict_result(attendance, math, english, science, bangla)
+
+        # Database এ save করুন
+        StudentResult.objects.create(
+            student=student,
+            attendance=attendance,
+            math_marks=math,
+            english_marks=english,
+            science_marks=science,
+            bangla_marks=bangla,
+            prediction=prediction_result['prediction'],
+            confidence=prediction_result['confidence']
+        )
+
+        create_notification(
+            request.user,
+            f"AI Prediction for {student.first_name}: {prediction_result['prediction']}"
+        )
+
+    context = {
+        'student': student,
+        'prediction_result': prediction_result,
+        'previous_results': previous_results,
+        **get_notifications(request),
+    }
+    return render(request, 'students/predict.html', context)

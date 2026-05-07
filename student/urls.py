@@ -54,7 +54,7 @@ urlpatterns = [
 
     # Rating — নতুন
     path('view/<slug:slug>/rate/', views.rate_student, name='rate_student'),
-    
+
     # REST API
     path('api/summary/', api_views.api_summary, name='api_summary'),
     path('api/students/', api_views.student_list_api, name='student_list_api'),
@@ -63,4 +63,7 @@ urlpatterns = [
     path('api/teachers/<int:pk>/', api_views.teacher_detail_api, name='teacher_detail_api'),
     path('api/departments/', api_views.department_list_api, name='department_list_api'),
     path('api/subjects/', api_views.subject_list_api, name='subject_list_api'),
+    
+    # AI Prediction
+    path('predict/<slug:slug>/', views.predict_student, name='predict_student'),
 ]
