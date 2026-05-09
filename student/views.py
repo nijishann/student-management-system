@@ -486,7 +486,7 @@ def send_phone_otp(request):
     # OTP will be shown in response during development
     return JsonResponse({
         'success': True,
-        'message': f'✅ OTP Sent,(Demo: {otp})',
+        'message': f'✅ OTP Sent',
         'dev_otp': otp  # Remove this line in production
     })
 
