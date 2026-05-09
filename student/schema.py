@@ -42,25 +42,25 @@ class SubjectType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
 
-    # সব student
+    # All students
     all_students = graphene.List(StudentType)
 
-    # একজন student — slug দিয়ে
+    # Single student by slug
     student = graphene.Field(StudentType, slug=graphene.String())
 
-    # Class দিয়ে student খোঁজা
+    # Search students by class
     students_by_class = graphene.List(
         StudentType,
         student_class=graphene.String()
     )
 
-    # সব teacher
+    # All teachers
     all_teachers = graphene.List(TeacherType)
 
-    # সব department
+    # All departments
     all_departments = graphene.List(DepartmentType)
 
-    # সব subject
+    # All subjects
     all_subjects = graphene.List(SubjectType)
 
     # Total count

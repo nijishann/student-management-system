@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Create default admin user'
 
     def handle(self, *args, **kwargs):
-        # Railway এর existing variables ব্যবহার করছি
+        # Using Railway environment variables
         username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
         password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
         email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@gmail.com')

@@ -120,8 +120,8 @@
                            <tr>
                               <td colspan="8" class="text-center text-muted py-4">
                                  {% if search %}
-                                    "{{ search }}" নামে কোনো student পাওয়া যায়নি।
-                                    <a href="{% url 'student_list' %}">সব student দেখুন</a>
+                                    No student found with the name "{{ search }}".
+                                    <a href="{% url 'student_list' %}">View all students</a>
                                  {% else %}
                                     No students found. <a href="{% url 'add_student' %}">Add a student!</a>
                                  {% endif %}

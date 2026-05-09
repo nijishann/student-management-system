@@ -115,7 +115,7 @@ def student_list(request):
             student_id__icontains=search
         )
 
-    # Pagination — প্রতি page এ ৫ জন
+    # Pagination - 5 per page
     paginator = Paginator(students_all, 5)
     page_number = request.GET.get('page')
     student_list = paginator.get_page(page_number)
@@ -233,10 +233,10 @@ def toggle_like(request, slug):
 
     if existing:
         if existing.is_like == is_like:
-            # একই বাটনে আবার click করলে remove হবে
+            # Clicking same button again will remove reaction
             existing.delete()
         else:
-            # অন্য বাটনে click করলে switch হবে
+            # Clicking other button will switch reaction
             existing.is_like = is_like
             existing.save()
     else:
@@ -407,15 +407,15 @@ def register_page(request):
 def check_username(request):
     username = request.GET.get('username', '').strip()
     if not username:
-        return JsonResponse({'available': False, 'message': 'Username লিখুন'})
+        return JsonResponse({'available': False, 'message': 'Please enter a username'})
     if len(username) < 3:
-        return JsonResponse({'available': False, 'message': '❌ কমপক্ষে ৩ অক্ষর দিন'})
+        return JsonResponse({'available': False, 'message': '❌ Minimum 3 characters required'})
 
-    # Django User table এ check করুন
+    # Check in Django User table
     exists = User.objects.filter(username=username).exists()
     if exists:
-        return JsonResponse({'available': False, 'message': '❌ এই username টি নেওয়া হয়ে গেছে'})
-    return JsonResponse({'available': True, 'message': '✅ এই username টি পাওয়া যাচ্ছে'})
+        return JsonResponse({'available': False, 'message': '❌ This username is already taken'})
+    return JsonResponse({'available': True, 'message': '✅ This username is available'})
 
 
 # ========== EMAIL OTP SEND ==========
@@ -426,7 +426,7 @@ def send_email_otp(request):
         return JsonResponse({'success': False, 'message': 'Email here'})
 
     if StudentRegistration.objects.filter(email=email).exists():
-        return JsonResponse({'success': False, 'message': '❌ already registered'})
+        return JsonResponse({'success': False, 'message': '❌ This email is already registered'})
 
     otp = str(random.randint(100000, 999999))
     request.session['email_otp'] = otp
@@ -442,8 +442,8 @@ def send_email_otp(request):
         )
         return JsonResponse({
             'success': True,
-            'message': f'✅ OTP Send',
-            'dev_otp': otp  # Email এর OTP ও screen এ দেখাবে
+            'message': f'✅ OTP Sent',
+            'dev_otp': otp  # Email OTP will also show on screen
         })
     except Exception as e:
         return JsonResponse({
@@ -461,8 +461,8 @@ def verify_email_otp(request):
         return JsonResponse({'success': False, 'message': 'First OTP Send'})
     if otp_input == saved_otp:
         request.session['email_verified'] = True
-        return JsonResponse({'success': True, 'message': '✅ Email are verified!'})
-    return JsonResponse({'success': False, 'message': '❌ OTP incorrect'})
+        return JsonResponse({'success': True, 'message': '✅ Email verified!'})
+    return JsonResponse({'success': False, 'message': '❌ Incorrect OTP'})
 
 
 # ========== PHONE OTP SEND (Simulated) ==========
@@ -472,22 +472,22 @@ def send_phone_otp(request):
     if not phone:
         return JsonResponse({'success': False, 'message': 'Phone number'})
     if len(phone) < 11:
-        return JsonResponse({'success': False, 'message': '❌ Correct phone number paste'})
+        return JsonResponse({'success': False, 'message': '❌ Please enter a valid phone number'})
 
     # Phone already exists check
     if StudentRegistration.objects.filter(phone=phone).exists():
         return JsonResponse({'success': False, 'message': '❌ Already registered'})
 
-    # OTP generate (এখানে simulate করছি — real SMS gateway লাগবে)
+    # OTP generated (simulated — real SMS gateway needed for production)
     otp = str(random.randint(100000, 999999))
     request.session['phone_otp'] = otp
     request.session['phone_to_verify'] = phone
 
-    # Development এ OTP টা response এ দেখাব
+    # OTP will be shown in response during development
     return JsonResponse({
         'success': True,
-        'message': f'✅ OTP Send,(Demo: {otp})',
-        'dev_otp': otp  # Production এ এই line টা সরিয়ে দিন
+        'message': f'✅ OTP Sent,(Demo: {otp})',
+        'dev_otp': otp  # Remove this line in production
     })
 
 
@@ -500,8 +500,8 @@ def verify_phone_otp(request):
         return JsonResponse({'success': False, 'message': 'First OTP Send'})
     if otp_input == saved_otp:
         request.session['phone_verified'] = True
-        return JsonResponse({'success': True, 'message': '✅ Phone are verified!'})
-    return JsonResponse({'success': False, 'message': '❌ OTP incorrect'})
+        return JsonResponse({'success': True, 'message': '✅ Phone verified!'})
+    return JsonResponse({'success': False, 'message': '❌ Incorrect OTP'})
 
 
 # ========== FINAL REGISTRATION SUBMIT ==========
@@ -515,30 +515,30 @@ def register_submit(request):
 
         # Verification check
         if not request.session.get('email_verified'):
-            messages.error(request, '❌ Email verify করুন!')
+            messages.error(request, '❌ Please verify your email!')
             return redirect('register_page')
         if not request.session.get('phone_verified'):
-            messages.error(request, '❌ Phone verify করুন!')
+            messages.error(request, '❌ Please verify your phone!')
             return redirect('register_page')
 
         # Username already exists check
         if User.objects.filter(username=username).exists():
-            messages.error(request, '❌ এই username টি আগে থেকে নেওয়া হয়েছে!')
+            messages.error(request, '❌ This username is already taken!')
             return redirect('register_page')
 
         # Email already exists check
         if User.objects.filter(email=email).exists():
-            messages.error(request, '❌ এই email টি আগে থেকে registered!')
+            messages.error(request, '❌ This email is already registered!')
             return redirect('register_page')
 
-        # Django User তৈরি করুন
+        # Create Django User
         User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        # StudentRegistration এ ও save করুন
+        # Also save to StudentRegistration
         StudentRegistration.objects.create(
             username=username,
             email=email,
@@ -552,7 +552,7 @@ def register_submit(request):
         for key in ['email_otp', 'phone_otp', 'email_verified', 'phone_verified']:
             request.session.pop(key, None)
 
-        # Success page তে redirect করুন
+        # Redirect to success page
         return render(request, 'registration/success.html', {
             'username': username,
             'email': email,
@@ -570,8 +570,8 @@ def check_login_username(request):
     
     exists = User.objects.filter(username=username).exists()
     if exists:
-        return JsonResponse({'exists': True, 'message': '✅ Username পাওয়া গেছে'})
-    return JsonResponse({'exists': False, 'message': '❌ এই Username টি registered নয়'})
+        return JsonResponse({'exists': True, 'message': '✅ Username found'})
+    return JsonResponse({'exists': False, 'message': '❌ This username is not registered'})
 
 
 # ========== REALTIME LOGIN PASSWORD CHECK ==========
@@ -585,12 +585,12 @@ def check_login_password(request):
     from django.contrib.auth import authenticate
     user = authenticate(username=username, password=password)
     if user is not None:
-        return JsonResponse({'correct': True, 'message': '✅ Password সঠিক'})
+        return JsonResponse({'correct': True, 'message': '✅ Password is correct'})
     
-    # Username আছে কিনা চেক করুন
+    # Check if username exists
     if User.objects.filter(username=username).exists():
-        return JsonResponse({'correct': False, 'message': '❌ Password ভুল!'})
-    return JsonResponse({'correct': False, 'message': '❌ আগে সঠিক Username দিন'})
+        return JsonResponse({'correct': False, 'message': '❌ Incorrect password!'})
+    return JsonResponse({'correct': False, 'message': '❌ Please enter a valid username first'})
 
 # ========== FORGET PASSWORD ==========
 
@@ -601,36 +601,36 @@ def forget_password(request):
 def send_reset_otp(request):
     email = request.GET.get('email', '').strip()
     if not email:
-        return JsonResponse({'success': False, 'message': '❌ Email দিন'})
+        return JsonResponse({'success': False, 'message': '❌ Please enter your email'})
 
-    # Check করুন email registered কিনা
+    # Check if email is registered
     user = User.objects.filter(email=email).first()
     if not user:
-        return JsonResponse({'success': False, 'message': '❌ এই Email দিয়ে কোনো account নেই'})
+        return JsonResponse({'success': False, 'message': '❌ No account found with this email'})
 
     # OTP generate
     otp = str(random.randint(100000, 999999))
     request.session['reset_otp'] = otp
     request.session['reset_email'] = email
 
-    # Email পাঠান
+    # Send email
     try:
         send_mail(
             subject='Password Reset OTP - Student Management System',
-            message=f'আপনার Password Reset OTP: {otp}\n\nএই কোডটি ৫ মিনিটের জন্য valid।',
+            message=f'Your Password Reset OTP: {otp}\n\nThis code is valid for 5 minutes.',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
         )
         return JsonResponse({
             'success': True,
-            'message': f'✅ OTP পাঠানো হয়েছে {email} তে',
+            'message': f'✅ OTP has been sent to {email} তে',
             'dev_otp': otp  # Development এ দেখাবে
         })
     except Exception as e:
         return JsonResponse({
             'success': True,
-            'message': f'✅ OTP পাঠানো হয়েছে (Demo)',
+            'message': f'✅ OTP has been sent to (Demo)',
             'dev_otp': otp
         })
 
@@ -640,11 +640,11 @@ def verify_reset_otp(request):
     saved_otp = request.session.get('reset_otp', '')
 
     if not saved_otp:
-        return JsonResponse({'success': False, 'message': '❌ আগে OTP পাঠান'})
+        return JsonResponse({'success': False, 'message': '❌ Please send OTP first'})
     if otp_input == saved_otp:
         request.session['reset_verified'] = True
-        return JsonResponse({'success': True, 'message': '✅ OTP সঠিক! এখন নতুন password দিন'})
-    return JsonResponse({'success': False, 'message': '❌ OTP সঠিক নয়'})
+        return JsonResponse({'success': True, 'message': '✅ OTP verified! Please enter new password'})
+    return JsonResponse({'success': False, 'message': '❌ Incorrect OTP'})
 
 
 def reset_password(request):
@@ -654,20 +654,20 @@ def reset_password(request):
 
         # Verification check
         if not request.session.get('reset_verified'):
-            messages.error(request, '❌ আগে OTP verify করুন!')
+            messages.error(request, '❌ Please verify OTP first!')
             return redirect('forget_password')
 
         # Password match check
         if new_password != confirm_password:
-            messages.error(request, '❌ Password দুটো মিলছে না!')
+            messages.error(request, '❌ Passwords do not match!')
             return redirect('forget_password')
 
         # Password length check
         if len(new_password) < 6:
-            messages.error(request, '❌ Password কমপক্ষে ৬ অক্ষর হতে হবে!')
+            messages.error(request, '❌ Password must be at least 6 characters!')
             return redirect('forget_password')
 
-        # Password update করুন
+        # Update password
         email = request.session.get('reset_email')
         user = User.objects.filter(email=email).first()
         if user:
@@ -678,10 +678,10 @@ def reset_password(request):
             for key in ['reset_otp', 'reset_email', 'reset_verified']:
                 request.session.pop(key, None)
 
-            messages.success(request, '✅ Password সফলভাবে পরিবর্তন হয়েছে! এখন login করুন।')
+            messages.success(request, '✅ Password changed successfully! Please login.')
             return redirect('login')
 
-        messages.error(request, '❌ User খুঁজে পাওয়া যাচ্ছে না!')
+        messages.error(request, '❌ User not found!')
         return redirect('forget_password')
 
     return redirect('forget_password')
@@ -728,10 +728,10 @@ def predict_student(request, slug):
         science = float(request.POST.get('science_marks', 0))
         bangla = float(request.POST.get('bangla_marks', 0))
 
-        # Prediction করুন
+        # Run prediction
         prediction_result = predict_result(attendance, math, english, science, bangla)
 
-        # Database এ save করুন
+        # Save to database
         StudentResult.objects.create(
             student=student,
             attendance=attendance,

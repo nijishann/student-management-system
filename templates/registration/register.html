@@ -170,7 +170,7 @@
    // ========== EMAIL OTP SEND ==========
    $("#sendEmailOtp").click(function () {
       const email = $("#emailInput").val().trim();
-      if (!email) { alert("Email দিন!"); return; }
+      if (!email) { alert("Please enter your email!"); return; }
 
       $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
       const btn = $(this);
@@ -204,7 +204,7 @@
    // ========== EMAIL OTP VERIFY ==========
    $("#verifyEmailOtp").click(function () {
       const otp = $("#emailOtpInput").val().trim();
-      if (!otp) { alert("OTP দিন!"); return; }
+      if (!otp) { alert("Please enter the OTP!"); return; }
 
       $.get("{% url 'verify_email_otp' %}", { otp: otp }, function (data) {
          $("#emailOtpStatus").html(
@@ -222,7 +222,7 @@
    // ========== PHONE OTP SEND ==========
    $("#sendPhoneOtp").click(function () {
       const phone = $("#phoneInput").val().trim();
-      if (!phone) { alert("Phone number দিন!"); return; }
+      if (!phone) { alert("Please enter your phone number!"); return; }
 
       $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
       const btn = $(this);
@@ -233,7 +233,7 @@
          );
          if (data.success) {
             $("#phoneOtpSection").slideDown();
-            // Development এ OTP দেখাবে
+            // OTP will show in development mode
             if (data.dev_otp) {
                 $("#phoneOtpStatus").html(`
                    <div class="alert alert-info mt-2 p-2" style="border-radius:10px;">
@@ -254,7 +254,7 @@
    // ========== PHONE OTP VERIFY ==========
    $("#verifyPhoneOtp").click(function () {
       const otp = $("#phoneOtpInput").val().trim();
-      if (!otp) { alert("OTP দিন!"); return; }
+      if (!otp) { alert("Please enter the OTP!"); return; }
 
       $.get("{% url 'verify_phone_otp' %}", { otp: otp }, function (data) {
          $("#phoneOtpStatus").html(
@@ -273,12 +273,12 @@
    $("#registerForm").submit(function (e) {
       if ($("#emailVerifiedBadge").is(":hidden")) {
          e.preventDefault();
-         alert("Email verify করুন!");
+         alert("Please verify your email!");
          return;
       }
       if ($("#phoneVerifiedBadge").is(":hidden")) {
          e.preventDefault();
-         alert("Phone number verify করুন!");
+         alert("Please verify your phone number!");
          return;
       }
    });

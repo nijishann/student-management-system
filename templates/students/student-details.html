@@ -230,7 +230,7 @@
    // ========== COMMENT ==========
    $("#submitComment").click(function () {
       const text = $("#commentInput").val().trim();
-      if (!text) { alert("Comment লিখুন!"); return; }
+      if (!text) { alert("Please write a comment!"); return; }
       $.ajax({
          url: commentUrl,
          type: "POST",
@@ -255,7 +255,7 @@
             const count = parseInt($("#commentCount").text()) + 1;
             $("#commentCount").text(count);
          },
-         error: function () { alert("Error! Comment post হয়নি।"); }
+         error: function () { alert("Error! Comment could not be posted."); }
       });
    });
 
@@ -361,7 +361,7 @@
          ease: "power3.out"
       });
 
-      // বাকি cards একটার পর একটা
+      // Remaining cards one by one
       gsap.from(".card.mt-3", {
          duration: 0.6,
          y: 50,

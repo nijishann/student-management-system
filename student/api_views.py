@@ -14,7 +14,7 @@ from .serializers import (
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def student_list_api(request):
-    """সব student এর list"""
+    """List of all students"""
     students = Student.objects.select_related('parent').all()
 
     # Search filter
@@ -43,7 +43,7 @@ def student_list_api(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def student_detail_api(request, pk):
-    """একজন student এর details"""
+    """Details of a student"""
     try:
         student = Student.objects.select_related('parent').get(pk=pk)
     except Student.DoesNotExist:
@@ -60,7 +60,7 @@ def student_detail_api(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def teacher_list_api(request):
-    """সব teacher এর list"""
+    """List of all teachers"""
     teachers = Teacher.objects.select_related('department', 'subject').all()
     serializer = TeacherSerializer(teachers, many=True)
     return Response({
@@ -72,7 +72,7 @@ def teacher_list_api(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def teacher_detail_api(request, pk):
-    """একজন teacher এর details"""
+    """Details of a teacher"""
     try:
         teacher = Teacher.objects.get(pk=pk)
     except Teacher.DoesNotExist:
@@ -89,7 +89,7 @@ def teacher_detail_api(request, pk):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def department_list_api(request):
-    """সব department এর list"""
+    """List of all departments"""
     departments = Department.objects.all()
     serializer = DepartmentSerializer(departments, many=True)
     return Response({
@@ -103,7 +103,7 @@ def department_list_api(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def subject_list_api(request):
-    """সব subject এর list"""
+    """List of all subjects"""
     subjects = Subject.objects.select_related('department').all()
     serializer = SubjectSerializer(subjects, many=True)
     return Response({
@@ -117,7 +117,7 @@ def subject_list_api(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def api_summary(request):
-    """সব কিছুর count"""
+    """Count of all records"""
     return Response({
         'total_students': Student.objects.count(),
         'total_teachers': Teacher.objects.count(),

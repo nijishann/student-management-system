@@ -3,7 +3,7 @@ import numpy as np
 def predict_result(attendance, math, english, science, bangla):
     """
     Simple rule-based prediction
-    TensorFlow এর মতো কাজ করে
+    Works similar to TensorFlow
     """
     # Average marks
     avg_marks = (math + english + science + bangla) / 4
