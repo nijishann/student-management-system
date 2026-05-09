@@ -114,6 +114,7 @@
                </div>
                {% endif %}
 
+               <!-- Stats -->
                <div class="row text-center mt-3">
                   <div class="col-4">
                      <div class="p-3 bg-light rounded">
@@ -135,6 +136,7 @@
                   </div>
                </div>
 
+               <!-- Subject Details -->
                <div class="mt-4 text-left">
                   <h6 class="font-weight-bold mb-3">Subject-wise Marks:</h6>
                   {% for subject, marks in prediction_result.details.items %}
@@ -142,12 +144,13 @@
                      <span class="text-capitalize">{{ subject }}</span>
                      <div class="flex-grow-1 mx-3">
                         <div class="progress" style="height:8px; border-radius:4px;">
-                           <div class="progress-bar
-                              {% if marks >= 50 %}bg-success
-                              {% elif marks >= 33 %}bg-warning
-                              {% else %}bg-danger{% endif %}"
-                              style="width: {{ marks|floatformat:0 }}%">
-                           </div>
+                           {% if marks >= 50 %}
+                           <div class="progress-bar bg-success" style="width:{{ marks|floatformat:0 }}%"></div>
+                           {% elif marks >= 33 %}
+                           <div class="progress-bar bg-warning" style="width:{{ marks|floatformat:0 }}%"></div>
+                           {% else %}
+                           <div class="progress-bar bg-danger" style="width:{{ marks|floatformat:0 }}%"></div>
+                           {% endif %}
                         </div>
                      </div>
                      <span class="font-weight-bold">{{ marks }}%</span>
@@ -188,10 +191,7 @@
                         <td>{{ result.attendance }}%</td>
                         <td>{{ result.math_marks }}%</td>
                         <td>
-                           <span class="badge
-                              {% if result.prediction == 'Pass' %}badge-success
-                              {% elif result.prediction == 'Borderline' %}badge-warning
-                              {% else %}badge-danger{% endif %}">
+                           <span class="badge {% if result.prediction == 'Pass' %}badge-success{% elif result.prediction == 'Borderline' %}badge-warning{% else %}badge-danger{% endif %}">
                               {{ result.prediction }}
                            </span>
                         </td>
